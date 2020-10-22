@@ -1,14 +1,14 @@
 import { registerEnumType } from 'type-graphql';
 
 export enum ProjectType {
-  APP = 'app',
-  GAME = 'game',
-  VR = 'vr',
-  HARDWARE = 'hardware',
-  WEBSITE = 'website',
-  LIBRARY = 'library',
-  BOT = 'bot',
-  OTHER = 'other',
+  APP = 'APP',
+  GAME = 'GAME',
+  VR = 'VR',
+  HARDWARE = 'HARDWARE',
+  WEBSITE = 'WEBSITE',
+  LIBRARY = 'LIBRARY',
+  BOT = 'BOT',
+  OTHER = 'OTHER',
 }
 
 registerEnumType(ProjectType, { name: 'ProjectType' });

@@ -1,11 +1,12 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
+import { AuthContext, provideAuthContext } from './auth/context';
 
 export interface Context {
-  prisma: PrismaClient,
+  auth: AuthContext
 }
 
-export function createContext(): Context {
-  return { prisma };
+export function createContext(expressContext: ExpressContext) : Context {
+  return {
+    auth: provideAuthContext(expressContext),
+  };
 }

@@ -13,7 +13,7 @@ enum ProjectOrderByArg {
 registerEnumType(ProjectOrderByArg, { name: 'ProjectOrderByArg' });
 
 @Resolver(Project)
-export class PostResolver {
+export class ProjectQuery {
   @Inject(() => PrismaClient)
   private readonly prisma : PrismaClient;
 
@@ -46,6 +46,13 @@ export class PostResolver {
     }
     if (where?.awarded) {
       dbWhere.awards = {};
+    }
+    if (where?.user) {
+      dbWhere.members = {
+        some: {
+          username: where.user,
+        },
+      };
     }
 
     // Where media filters
@@ -87,6 +94,12 @@ export class PostResolver {
       take: take || 25,
       orderBy: dbOrderBy,
       where: dbWhere,
+      include: {
+        members: true,
+        media: true,
+        awards: true,
+        metadata: true,
+      },
     });
   }
 }

@@ -5,13 +5,12 @@ loadEnv();
 
 const config = {
   debug: process.env.NODE_ENV !== 'production',
-  discord: {
-    botToken: process.env.DISCORD_BOT_TOKEN,
-    channel: process.env.DISCORD_CHANNEL,
-    approverRole: process.env.DISCORD_APPROVER_ROLE,
-  },
   uploader: {
     base: process.env.UPLOADER_BASE,
+  },
+  jwt: {
+    secret: <string>process.env.JWT_SECRET,
+    audience: process.env.JWT_AUDIENCE || 'showcase',
   },
 };
 

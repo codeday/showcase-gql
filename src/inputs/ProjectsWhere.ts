@@ -19,6 +19,9 @@ export class ProjectsWhere {
     @Field(() => String, { nullable: true })
     region?: string;
 
+    @Field(() => String, { nullable: true })
+    user?: string;
+
     @Field(() => Boolean, { nullable: true })
     featured?: boolean;
 

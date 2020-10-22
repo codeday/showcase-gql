@@ -28,37 +28,37 @@ export class Project {
   @Field(() => ProjectType)
   type: ProjectType;
 
-  @Field(() => String)
-  description: string;
+  @Field(() => String, { nullable: true })
+  description?: string;
 
-  @Field(() => String)
-  priorExperience: string;
+  @Field(() => String, { nullable: true })
+  priorExperience?: string;
 
-  @Field(() => String)
-  codeLink: string;
+  @Field(() => String, { nullable: true })
+  codeLink?: string;
 
-  @Field(() => String)
-  viewLink: string;
+  @Field(() => String, { nullable: true })
+  viewLink?: string;
 
   /* Relations */
   @Field(() => String)
   eventId: string;
 
-  @Field(() => String)
-  eventGroupId: string;
+  @Field(() => String, { nullable: true })
+  eventGroupId?: string;
 
-  @Field(() => String)
-  regionId: string;
+  @Field(() => String, { nullable: true })
+  regionId?: string;
 
-  @Field(() => [Media])
+  @Field(() => [Media], { nullable: true })
   media: Media[];
 
-  @Field(() => [Award])
+  @Field(() => [Award], { nullable: true })
   awards: Award[]
 
-  @Field(() => [Member])
+  @Field(() => [Member], { nullable: true })
   members: Member[]
 
-  @Field(() => [Metadata])
+  @Field(() => [Metadata], { nullable: true })
   metadata: Metadata[]
 }
