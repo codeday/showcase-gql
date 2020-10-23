@@ -23,22 +23,18 @@ export class MemberMutation {
       throw new Error('No permission to admin this project.');
     }
 
-    await this.prisma.award.upsert({
-      create: {
+    if (await this.prisma.award.count({ where: { type, modifier, projectId: project } }) > 0) {
+      throw new Error('Project has already recieved this award.');
+    }
+
+    await this.prisma.award.create({
+      data: {
         type,
         modifier,
         project: {
           connect: {
             id: project,
           },
-        },
-      },
-      update: { },
-      where: {
-        projectId_type_modifier: {
-          projectId: project,
-          type,
-          modifier,
         },
       },
     });
@@ -49,16 +45,14 @@ export class MemberMutation {
   @Mutation(() => Boolean)
   async removeAward(
     @Ctx() { auth }: Context,
-    @Arg('project') project: string,
-    @Arg('type') type: string,
-    @Arg('modifier', { nullable: true }) modifier?: string,
+    @Arg('id') id: string,
   ) : Promise<boolean> {
-    const dbProject = await this.prisma.project.findFirst({ where: { id: project } });
-    if (!dbProject || !await auth.isEventAdmin(dbProject.eventId)) {
+    const dbAward = await this.prisma.award.findFirst({ where: { id }, include: { project: true } });
+    if (!dbAward || !await auth.isEventAdmin(dbAward.project.eventId)) {
       throw new Error('No permission to admin this project.');
     }
 
-    await this.prisma.award.deleteMany({ where: { projectId: project, type, modifier } });
+    await this.prisma.award.delete({ where: { id } });
     return true;
   }
 }
