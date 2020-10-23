@@ -1,14 +1,11 @@
 import { verify } from 'jsonwebtoken';
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
 import { PrismaClient } from '@prisma/client';
-import { Inject } from 'typedi';
+import { Container } from 'typedi';
 import config from '../config';
 import { AuthToken } from './token';
 
 export class AuthContext {
-  @Inject(() => PrismaClient)
-  prisma: PrismaClient;
-
   token: AuthToken | undefined;
 
   constructor(token?: AuthToken) {
@@ -26,10 +23,13 @@ export class AuthContext {
   }
 
   async isProjectAdmin(id: string): Promise<boolean> {
+    // If there is no token, they can't be an admin!
+    if (!this.token) return false;
+
     // Don't need to check for superadmins
     if (this.adminFlag && !this.eventId) return true;
 
-    return (await this.prisma.project.count({
+    return (await Container.get(PrismaClient).project.count({
       where: {
         id,
         OR: [

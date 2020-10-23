@@ -4,9 +4,6 @@ import { Project } from './Project';
 @ObjectType()
 export class Metadata {
   /* Metadata */
-  @Field(() => String)
-  id: string;
-
   @Field(() => Date)
   createdAt: Date;
 

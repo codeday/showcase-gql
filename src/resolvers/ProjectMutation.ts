@@ -9,7 +9,7 @@ import { CreateProjectInput } from '../inputs/CreateProjectInput';
 import { EditProjectInput } from '../inputs/EditProjectInput';
 
 @Resolver(Project)
-export class ProjectQuery {
+export class ProjectMutation {
   @Inject(() => PrismaClient)
   private readonly prisma : PrismaClient;
 
@@ -55,7 +55,7 @@ export class ProjectQuery {
     @Arg('project', () => EditProjectInput) project: EditProjectInput,
     @Ctx() { auth }: Context,
   ): Promise<Project> {
-    if (!auth.isProjectAdmin(id)) throw new Error('No permission to edit this project.');
+    if (!await auth.isProjectAdmin(id)) throw new Error('No permission to edit this project.');
 
     await this.prisma.project.update({
       where: {
@@ -83,10 +83,36 @@ export class ProjectQuery {
     @Arg('id') id: string,
     @Ctx() { auth }: Context,
   ): Promise<boolean> {
-    if (!auth.isProjectAdmin(id)) throw new Error('No permission to edit this project.');
+    if (!await auth.isProjectAdmin(id)) throw new Error('No permission to edit this project.');
 
     await this.prisma.project.delete({
       where: { id },
+    });
+
+    return true;
+  }
+
+  /**
+   * Marks a project as featured / not featured.
+   */
+  @Mutation(() => Boolean)
+  async featureProject(
+    @Ctx() { auth }: Context,
+    @Arg('id') id: string,
+    @Arg('isFeatured', { nullable: true }) isFeatured?: boolean,
+  ): Promise<boolean> {
+    const dbProject = await this.prisma.project.findFirst({ where: { id } });
+    if (!dbProject || !await auth.isEventAdmin(dbProject.eventId)) {
+      throw new Error('No permission to admin this project.');
+    }
+
+    await this.prisma.project.update({
+      where: {
+        id,
+      },
+      data: {
+        featured: typeof isFeatured !== 'undefined' ? isFeatured : true,
+      },
     });
 
     return true;

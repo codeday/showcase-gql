@@ -1,9 +1,10 @@
-import { ObjectType, Field } from 'type-graphql';
+import { ObjectType, Field, Ctx } from 'type-graphql';
 import { ProjectType } from './ProjectType';
 import { Media } from './Media';
 import { Award } from './Award';
 import { Member } from './Member';
 import { Metadata } from './Metadata';
+import { Context } from '../context';
 
 @ObjectType()
 export class Project {
@@ -61,4 +62,18 @@ export class Project {
 
   @Field(() => [Metadata], { nullable: true })
   metadata: Metadata[]
+
+  @Field(() => Boolean, { name: 'canEdit' })
+  async canEdit(
+    @Ctx() { auth }: Context,
+  ): Promise<boolean> {
+    return auth.isProjectAdmin(this.id);
+  }
+
+  @Field(() => Boolean, { name: 'canAdmin' })
+  async canAdmin(
+    @Ctx() { auth }: Context,
+  ): Promise<boolean> {
+    return auth.isEventAdmin(this.eventId);
+  }
 }

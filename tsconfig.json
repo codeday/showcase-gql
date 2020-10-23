@@ -11,7 +11,7 @@
     "plugins": [],
     "typeRoots": [
       "node_modules/@types",
-      "_types"
+      "src/_types"
     ],
     "experimentalDecorators": true,
     "esModuleInterop": true,

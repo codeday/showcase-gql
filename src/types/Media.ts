@@ -27,10 +27,10 @@ export class Media {
 
   @Field(() => String, { name: 'image' })
   makeImageUrl(
-    @Arg('width', { nullable: true }) width: number,
-    @Arg('height', { nullable: true }) height: number,
-    @Arg('strategy', () => ResizeStrategy, { nullable: true }) strategy: ResizeStrategy,
-    @Arg('fillBlur', { nullable: true }) fillBlur: boolean,
+    @Arg('width', { nullable: true }) width?: number,
+    @Arg('height', { nullable: true }) height?: number,
+    @Arg('strategy', () => ResizeStrategy, { nullable: true }) strategy?: ResizeStrategy,
+    @Arg('fillBlur', { nullable: true }) fillBlur?: boolean,
   ): string {
     const resizeString = [
       width && `w=${width}`,
@@ -39,14 +39,15 @@ export class Media {
       fillBlur && `fill=blur`,
     ].filter((e) => e).join(';');
 
+    if (resizeString.length === 0) return this.image;
     return this.image.replace('/o/', `/${resizeString}/`);
   }
 
   @Field(() => String, { nullable: true })
-  stream: string;
+  stream?: string;
 
   @Field(() => String, { nullable: true })
-  download: string;
+  download?: string;
 
   /* Relations */
   @Field(() => Project)
