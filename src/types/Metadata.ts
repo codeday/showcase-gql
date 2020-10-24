@@ -1,5 +1,6 @@
 import { ObjectType, Field } from 'type-graphql';
 import { Project } from './Project';
+import { MetadataVisibility } from './MetadataVisibility';
 
 @ObjectType()
 export class Metadata {
@@ -16,6 +17,9 @@ export class Metadata {
 
   @Field(() => String)
   value: string;
+
+  @Field(() => MetadataVisibility)
+  visibility: MetadataVisibility;
 
   /* Relations */
   @Field(() => Project)

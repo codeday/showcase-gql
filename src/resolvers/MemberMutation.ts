@@ -17,7 +17,7 @@ export class MemberMutation {
     @Arg('username') username: string,
     @Ctx() { auth }: Context,
   ): Promise<boolean> {
-    if (!await auth.isProjectAdmin(project)) throw new Error('No permission to edit this project.');
+    if (!await auth.isProjectAdminById(project)) throw new Error('No permission to edit this project.');
     if (await this.prisma.member.count({ where: { projectId: project, username } }) > 0) {
       throw new Error(`${username} is already a member of this project.`);
     }
@@ -42,7 +42,7 @@ export class MemberMutation {
     @Arg('username') username: string,
     @Ctx() { auth }: Context,
   ) : Promise<boolean> {
-    if (!await auth.isProjectAdmin(project)) throw new Error('No permission to edit this project.');
+    if (!await auth.isProjectAdminById(project)) throw new Error('No permission to edit this project.');
     if (username === auth.username) throw new Error('You cannot remove yourself from a project.');
 
     await this.prisma.member.deleteMany({ where: { projectId: project, username } });

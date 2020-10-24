@@ -1,0 +1,52 @@
+{
+  "version": "0.3.14-fixed",
+  "steps": [
+    {
+      "tag": "CreateEnum",
+      "enum": "MetadataVisibility",
+      "values": [
+        "PUBLIC",
+        "PRIVATE",
+        "ADMIN"
+      ]
+    },
+    {
+      "tag": "UpdateField",
+      "model": "Media",
+      "field": "download",
+      "arity": "Optional"
+    },
+    {
+      "tag": "CreateField",
+      "model": "Metadata",
+      "field": "visibility",
+      "type": "MetadataVisibility",
+      "arity": "Required"
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "Metadata",
+          "field": "visibility"
+        },
+        "directive": "default"
+      }
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "Metadata",
+          "field": "visibility"
+        },
+        "directive": "default"
+      },
+      "argument": "",
+      "value": "PUBLIC"
+    }
+  ]
+}

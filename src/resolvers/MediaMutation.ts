@@ -26,7 +26,7 @@ export class MediaMutation {
     @Arg('upload', () => GraphQLUpload) upload: FileUpload,
     @Ctx() { auth }: Context,
   ): Promise<Media> {
-    if (!await auth.isProjectAdmin(project)) throw new Error('No permission to edit this project.');
+    if (!await auth.isProjectAdminById(project)) throw new Error('No permission to edit this project.');
 
     const chunks = [];
     // eslint-disable-next-line no-restricted-syntax
@@ -73,7 +73,7 @@ export class MediaMutation {
     @Ctx() { auth }: Context,
   ) : Promise<boolean> {
     const media = await this.prisma.media.findFirst({ where: { id } });
-    if (!media || !await auth.isProjectAdmin(media.projectId)) throw new Error('No permission to edit this media.');
+    if (!media || !await auth.isProjectAdminById(media.projectId)) throw new Error('No permission to edit this media.');
 
     await this.prisma.media.delete({ where: { id } });
     return true;

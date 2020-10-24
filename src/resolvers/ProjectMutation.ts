@@ -55,7 +55,7 @@ export class ProjectMutation {
     @Arg('project', () => EditProjectInput) project: EditProjectInput,
     @Ctx() { auth }: Context,
   ): Promise<Project> {
-    if (!await auth.isProjectAdmin(id)) throw new Error('No permission to edit this project.');
+    if (!await auth.isProjectAdminById(id)) throw new Error('No permission to edit this project.');
 
     await this.prisma.project.update({
       where: {
@@ -83,7 +83,7 @@ export class ProjectMutation {
     @Arg('id') id: string,
     @Ctx() { auth }: Context,
   ): Promise<boolean> {
-    if (!await auth.isProjectAdmin(id)) throw new Error('No permission to edit this project.');
+    if (!await auth.isProjectAdminById(id)) throw new Error('No permission to edit this project.');
 
     await this.prisma.project.delete({
       where: { id },

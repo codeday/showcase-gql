@@ -1,4 +1,8 @@
-import { ObjectType, Field, Ctx } from 'type-graphql';
+import {
+  ObjectType, Field, Ctx, Arg,
+} from 'type-graphql';
+import { PrismaClient } from '@prisma/client';
+import { Container } from 'typedi';
 import { ProjectType } from './ProjectType';
 import { Media } from './Media';
 import { Award } from './Award';
@@ -9,7 +13,6 @@ import { Context } from '../context';
 @ObjectType()
 export class Project {
   /* Metadata */
-
   @Field(() => String)
   id: string;
 
@@ -61,13 +64,37 @@ export class Project {
   members: Member[]
 
   @Field(() => [Metadata], { nullable: true })
-  metadata: Metadata[]
+  async metadata(
+    @Ctx() { auth }: Context,
+  ): Promise<Metadata[]> {
+    return <Metadata[]><unknown> Container.get(PrismaClient).metadata.findMany({
+      where: {
+        projectId: this.id,
+        OR: auth.visibilityConditions(this),
+      },
+    });
+  }
+
+  @Field(() => String, { nullable: true })
+  async metadataValue(
+    @Ctx() { auth }: Context,
+    @Arg('key') key: string,
+  ): Promise<string> {
+    const metadata = <Metadata><unknown> Container.get(PrismaClient).metadata.findFirst({
+      where: {
+        projectId: this.id,
+        key,
+        OR: auth.visibilityConditions(this),
+      },
+    });
+    return metadata?.value;
+  }
 
   @Field(() => Boolean, { name: 'canEdit' })
   async canEdit(
     @Ctx() { auth }: Context,
   ): Promise<boolean> {
-    return auth.isProjectAdmin(this.id);
+    return auth.isProjectAdmin(this);
   }
 
   @Field(() => Boolean, { name: 'canAdmin' })

@@ -98,7 +98,6 @@ export class ProjectQuery {
         members: true,
         media: true,
         awards: true,
-        metadata: true,
       },
     });
   }
