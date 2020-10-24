@@ -2,13 +2,14 @@ FROM node:14.8 as builder
 RUN apt-get -qy update && apt-get install -qy openssl
 WORKDIR /app
 COPY ./package.json ./yarn.lock /app/
-RUN yarn install
+RUN yarn install && npm i -g @prisma/cli
 
 COPY ./ /app
 
-RUN yarn run build
+RUN prisma generate && yarn run build
 
 FROM node:14.8-slim as runtime
+RUN apt-get -qy update && apt-get install -qy openssl
 
 WORKDIR /app
 ENV NODE_ENV=production
