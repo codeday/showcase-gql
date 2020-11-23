@@ -92,6 +92,10 @@ export class AuthContext {
     return this.token?.e;
   }
 
+  get programId(): string | undefined {
+    return this.token?.p;
+  }
+
   get eventGroupId(): string | undefined {
     return this.token?.g;
   }

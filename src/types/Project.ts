@@ -48,6 +48,9 @@ export class Project {
   @Field(() => String)
   eventId: string;
 
+  @Field(() => String)
+  programId: string;
+
   @Field(() => String, { nullable: true })
   eventGroupId?: string;
 

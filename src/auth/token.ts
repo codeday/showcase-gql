@@ -11,6 +11,9 @@ export interface AuthToken {
   /** RegionId for newly created projects. */
   r?: string
 
+  /** ProgramId for newly created projects. */
+  p?: string
+
   /** Can edit, feature, and award all projects in the specified EventId. */
   a: boolean
 }

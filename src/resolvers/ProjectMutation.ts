@@ -26,6 +26,7 @@ export class ProjectMutation {
     return <Project><unknown> this.prisma.project.create({
       data: {
         eventId: auth.eventId,
+        programId: auth.programId,
         eventGroupId: auth.eventGroupId,
         regionId: auth.regionId,
         members: {
