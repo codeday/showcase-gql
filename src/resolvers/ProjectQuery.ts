@@ -17,6 +17,15 @@ export class ProjectQuery {
   @Inject(() => PrismaClient)
   private readonly prisma : PrismaClient;
 
+  @Query(() => Project)
+  async project(
+    @Arg('id') id: string,
+  ): Promise<Project> {
+    return <Promise<Project>><unknown> this.prisma.project.findFirst({
+      where: { id },
+    });
+  }
+
   @Query(() => [Project])
   async projects(
     @Arg('skip', { nullable: true }) skip?: number,
