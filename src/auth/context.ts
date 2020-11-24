@@ -41,9 +41,9 @@ export class AuthContext {
   }
 
   async isProjectAdminById(id: string): Promise<boolean> {
-    const project = await Container.get(PrismaClient).project.findFirst({ where: { id } });
+    const project = await Container.get(PrismaClient).project.findFirst({ where: { id }, include: { members: true } });
     if (!project) return false;
-    return this.isProjectAdmin(<Partial<Project>>project);
+    return this.isProjectAdmin(<Partial<Project>><unknown>project);
   }
 
   visibilityConditions(project: Project): Enumerable<MetadataWhereInput> {
