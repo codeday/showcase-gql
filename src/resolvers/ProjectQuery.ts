@@ -23,6 +23,11 @@ export class ProjectQuery {
   ): Promise<Project> {
     return <Promise<Project>><unknown> this.prisma.project.findFirst({
       where: { id },
+      include: {
+        members: true,
+        media: true,
+        awards: true,
+      },
     });
   }
 
