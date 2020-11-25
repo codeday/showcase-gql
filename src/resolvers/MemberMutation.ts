@@ -11,18 +11,18 @@ export class MemberMutation {
   @Inject(() => PrismaClient)
   private readonly prisma : PrismaClient;
 
-  @Mutation(() => Boolean)
+  @Mutation(() => Member)
   async addMember(
     @Arg('project') project: string,
     @Arg('username') username: string,
     @Ctx() { auth }: Context,
-  ): Promise<boolean> {
+  ): Promise<Member> {
     if (!await auth.isProjectAdminById(project)) throw new Error('No permission to edit this project.');
     if (await this.prisma.member.count({ where: { projectId: project, username } }) > 0) {
       throw new Error(`${username} is already a member of this project.`);
     }
 
-    await this.prisma.member.create({
+    return <Promise<Member>><unknown> this.prisma.member.create({
       data: {
         username,
         project: {
@@ -32,8 +32,6 @@ export class MemberMutation {
         },
       },
     });
-
-    return true;
   }
 
   @Mutation(() => Boolean)
