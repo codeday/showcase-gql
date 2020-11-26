@@ -53,7 +53,7 @@ export class MemberMutation {
       },
     });
 
-    pubSub.publish(ProjectSubscriptionTopics.ProjectEdit, editedProject);
+    pubSub.publish(ProjectSubscriptionTopics.Edit, editedProject);
     return true;
   }
 
@@ -85,7 +85,7 @@ export class MemberMutation {
       },
     });
 
-    pubSub.publish(ProjectSubscriptionTopics.ProjectEdit, editedProject);
+    pubSub.publish(ProjectSubscriptionTopics.Edit, editedProject);
     return true;
   }
 }
