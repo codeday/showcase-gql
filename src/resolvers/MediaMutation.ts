@@ -10,6 +10,8 @@ import { Media } from '../types/Media';
 import { MediaType } from '../types/MediaType';
 import { MediaTopic } from '../types/MediaTopic';
 
+// TODO(@tylermenezes) add subscription support
+
 @Resolver(Media)
 export class MediaMutation {
   @Inject(() => PrismaClient)

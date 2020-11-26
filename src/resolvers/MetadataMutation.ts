@@ -1,9 +1,10 @@
 import {
-  Resolver, Mutation, Arg, Ctx,
+  Resolver, Mutation, Arg, Ctx, PubSub, PubSubEngine,
 } from 'type-graphql';
 import { PrismaClient } from '@prisma/client';
 import { Inject } from 'typedi';
 import { Context } from '../context';
+import { ProjectSubscriptionTopics } from './ProjectSubscription';
 import { Metadata } from '../types/Metadata';
 import { MetadataVisibility } from '../types/MetadataVisibility';
 import { Project } from '../types/Project';
@@ -15,11 +16,12 @@ export class MetadataMutation {
 
   @Mutation(() => Boolean)
   async setMetadata(
+    @Ctx() { auth }: Context,
+    @PubSub() pubSub: PubSubEngine,
     @Arg('project') project: string,
     @Arg('key') key: string,
     @Arg('value') value: string,
     @Arg('visibility', () => MetadataVisibility) visibility: MetadataVisibility,
-    @Ctx() { auth }: Context,
   ): Promise<boolean> {
     const dbProject = <Project> await this.prisma.project.findFirst({ where: { id: project } });
     if (!dbProject || !auth.isProjectAdmin(dbProject)) throw new Error('No permission to edit this project.');
@@ -53,14 +55,24 @@ export class MetadataMutation {
       },
     });
 
+    pubSub.publish(ProjectSubscriptionTopics.Edit, await this.prisma.project.findFirst({
+      where: { id: project },
+      include: {
+        members: true,
+        metadata: true,
+        media: true,
+        awards: true,
+      },
+    }));
     return true;
   }
 
   @Mutation(() => Boolean)
   async unsetMetadata(
+    @Ctx() { auth }: Context,
+    @PubSub() pubSub: PubSubEngine,
     @Arg('project') project: string,
     @Arg('key') key: string,
-    @Ctx() { auth }: Context,
   ) : Promise<boolean> {
     const dbProject = <Project> await this.prisma.project.findFirst({ where: { id: project } });
     if (!dbProject || !auth.isProjectAdmin(dbProject)) throw new Error('No permission to edit this project.');
@@ -73,6 +85,16 @@ export class MetadataMutation {
     if (previousHigherVisibility > 0) throw new Error(`${key} requires higher permission.`);
 
     await this.prisma.metadata.deleteMany({ where: { projectId: project, key } });
+
+    pubSub.publish(ProjectSubscriptionTopics.Edit, await this.prisma.project.findFirst({
+      where: { id: project },
+      include: {
+        members: true,
+        metadata: true,
+        media: true,
+        awards: true,
+      },
+    }));
     return true;
   }
 }

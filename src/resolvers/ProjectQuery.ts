@@ -27,6 +27,7 @@ export class ProjectQuery {
         members: true,
         media: true,
         awards: true,
+        metadata: true,
       },
     });
   }
@@ -57,6 +58,9 @@ export class ProjectQuery {
     }
     if (where?.featured) {
       dbWhere.featured = where.featured;
+    }
+    if (where?.program) {
+      dbWhere.programId = where.program;
     }
     if (where?.awarded) {
       dbWhere.awards = {};
@@ -112,6 +116,7 @@ export class ProjectQuery {
         members: true,
         media: true,
         awards: true,
+        metadata: true,
       },
     });
   }

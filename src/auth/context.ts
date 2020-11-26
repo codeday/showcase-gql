@@ -110,6 +110,8 @@ export class AuthContext {
 }
 
 export function provideAuthContext({ req }: ExpressContext): AuthContext {
+  if (!req) return new AuthContext();
+
   const header = req.header('X-Showcase-Authorization') || req.header('Authorization');
   if (!header) return new AuthContext();
 

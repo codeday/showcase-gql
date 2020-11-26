@@ -20,6 +20,9 @@ export class ProjectsWhere {
     region?: string;
 
     @Field(() => String, { nullable: true })
+    program?: string;
+
+    @Field(() => String, { nullable: true })
     user?: string;
 
     @Field(() => Boolean, { nullable: true })

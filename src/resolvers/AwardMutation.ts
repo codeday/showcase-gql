@@ -1,9 +1,10 @@
 import {
-  Resolver, Mutation, Arg, Ctx,
+  Resolver, Mutation, Arg, Ctx, PubSub, PubSubEngine,
 } from 'type-graphql';
 import { PrismaClient } from '@prisma/client';
 import { Inject } from 'typedi';
 import { Context } from '../context';
+import { ProjectSubscriptionTopics } from './ProjectSubscription';
 import { Award } from '../types/Award';
 
 @Resolver(Award)
@@ -14,6 +15,7 @@ export class MemberMutation {
   @Mutation(() => Boolean)
   async addAward(
     @Ctx() { auth }: Context,
+    @PubSub() pubSub: PubSubEngine,
     @Arg('project') project: string,
     @Arg('type') type: string,
     @Arg('modifier', { nullable: true }) modifier?: string,
@@ -39,12 +41,26 @@ export class MemberMutation {
       },
     });
 
+    const editedProject = await this.prisma.project.findFirst({
+      where: {
+        id: project,
+      },
+      include: {
+        members: true,
+        media: true,
+        awards: true,
+        metadata: true,
+      },
+    });
+
+    pubSub.publish(ProjectSubscriptionTopics.ProjectEdit, editedProject);
     return true;
   }
 
   @Mutation(() => Boolean)
   async removeAward(
     @Ctx() { auth }: Context,
+    @PubSub() pubSub: PubSubEngine,
     @Arg('id') id: string,
   ) : Promise<boolean> {
     const dbAward = await this.prisma.award.findFirst({ where: { id }, include: { project: true } });
@@ -52,7 +68,24 @@ export class MemberMutation {
       throw new Error('No permission to admin this project.');
     }
 
+    const removingAward = await this.prisma.award.findFirst({ where: { id } });
+    if (!removingAward) return false;
+
     await this.prisma.award.delete({ where: { id } });
+
+    const editedProject = await this.prisma.project.findFirst({
+      where: {
+        id: removingAward?.projectId,
+      },
+      include: {
+        members: true,
+        media: true,
+        awards: true,
+        metadata: true,
+      },
+    });
+
+    pubSub.publish(ProjectSubscriptionTopics.ProjectEdit, editedProject);
     return true;
   }
 }

@@ -1,10 +1,11 @@
 import {
-  Resolver, Mutation, Arg, Ctx,
+  Resolver, Mutation, Arg, Ctx, PubSub, PubSubEngine,
 } from 'type-graphql';
 import { PrismaClient, ProjectUpdateInput } from '@prisma/client';
 import { Inject } from 'typedi';
 import { Context } from '../context';
 import { Project } from '../types/Project';
+import { ProjectSubscriptionTopics } from './ProjectSubscription';
 import { CreateProjectInput } from '../inputs/CreateProjectInput';
 import { EditProjectInput } from '../inputs/EditProjectInput';
 
@@ -18,12 +19,13 @@ export class ProjectMutation {
    */
   @Mutation(() => Project)
   async createProject(
-    @Arg('project', () => CreateProjectInput) project: CreateProjectInput,
     @Ctx() { auth }: Context,
+    @PubSub() pubSub: PubSubEngine,
+    @Arg('project', () => CreateProjectInput) project: CreateProjectInput,
   ): Promise<Project> {
     if (!auth.eventId || !auth.username) throw new Error('No permission to create projects.');
 
-    return <Project><unknown> this.prisma.project.create({
+    const newProject = <Project><unknown> this.prisma.project.create({
       data: {
         eventId: auth.eventId,
         programId: auth.programId,
@@ -45,6 +47,9 @@ export class ProjectMutation {
         metadata: true,
       },
     });
+
+    pubSub.publish(ProjectSubscriptionTopics.Create, newProject);
+    return newProject;
   }
 
   /**
@@ -52,9 +57,10 @@ export class ProjectMutation {
    */
   @Mutation(() => Project)
   async editProject(
+    @Ctx() { auth }: Context,
+    @PubSub() pubSub: PubSubEngine,
     @Arg('id') id: string,
     @Arg('project', () => EditProjectInput) project: EditProjectInput,
-    @Ctx() { auth }: Context,
   ): Promise<Project> {
     if (!await auth.isProjectAdminById(id)) throw new Error('No permission to edit this project.');
 
@@ -65,7 +71,7 @@ export class ProjectMutation {
       data: <ProjectUpdateInput>project,
     });
 
-    return <Project><unknown> this.prisma.project.findFirst({
+    const editedProject = <Project><unknown> this.prisma.project.findFirst({
       where: { id },
       include: {
         members: true,
@@ -74,6 +80,9 @@ export class ProjectMutation {
         metadata: true,
       },
     });
+
+    pubSub.publish(ProjectSubscriptionTopics.Edit, editedProject);
+    return editedProject;
   }
 
   /**
@@ -81,15 +90,30 @@ export class ProjectMutation {
    */
   @Mutation(() => Boolean)
   async deleteProject(
-    @Arg('id') id: string,
     @Ctx() { auth }: Context,
+    @PubSub() pubSub: PubSubEngine,
+    @Arg('id') id: string,
   ): Promise<boolean> {
     if (!await auth.isProjectAdminById(id)) throw new Error('No permission to edit this project.');
+
+    const projectToDelete = await this.prisma.project.findFirst({
+      where: {
+        id,
+      },
+      include: {
+        members: true,
+        media: true,
+        awards: true,
+        metadata: true,
+      },
+    });
+    if (!projectToDelete) return false;
 
     await this.prisma.project.delete({
       where: { id },
     });
 
+    pubSub.publish(ProjectSubscriptionTopics.Delete, projectToDelete);
     return true;
   }
 
@@ -99,6 +123,7 @@ export class ProjectMutation {
   @Mutation(() => Boolean)
   async featureProject(
     @Ctx() { auth }: Context,
+    @PubSub() pubSub: PubSubEngine,
     @Arg('id') id: string,
     @Arg('isFeatured', { nullable: true }) isFeatured?: boolean,
   ): Promise<boolean> {
@@ -116,6 +141,19 @@ export class ProjectMutation {
       },
     });
 
+    const editedProject = await this.prisma.project.findFirst({
+      where: {
+        id,
+      },
+      include: {
+        members: true,
+        media: true,
+        awards: true,
+        metadata: true,
+      },
+    });
+
+    pubSub.publish(ProjectSubscriptionTopics.Edit, editedProject);
     return true;
   }
 }
