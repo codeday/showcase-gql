@@ -110,6 +110,7 @@ export class JudgingPool {
         const result = new JudgingResultSubValue();
         result.judgingCriteria = criteria;
         result.value = sum / matchingJudgements.length;
+        if (typeof result.value !== 'number' || Number.isNaN(result.value)) result.value = 0;
         return result;
       });
 
@@ -121,6 +122,7 @@ export class JudgingPool {
       result.project = <Project><unknown> p;
       result.subScores = elementScores;
       result.value = score;
+      if (typeof result.value !== 'number' || Number.isNaN(result.value)) result.value = 0;
 
       return result;
     }).sort((a, b) => b.value - a.value);
