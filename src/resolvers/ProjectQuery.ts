@@ -5,7 +5,7 @@ import { PrismaClient, ProjectOrderByInput } from '@prisma/client';
 import { Inject } from 'typedi';
 import { Project } from '../types/Project';
 import { ProjectsWhere } from '../inputs/ProjectsWhere';
-import { projectsWhereToPrisma } from '../queryUtils';
+import { projectsWhereToPrisma, projectsInclude } from '../queryUtils';
 
 enum ProjectOrderByArg {
   NEWEST = 'newest',
@@ -24,12 +24,7 @@ export class ProjectQuery {
   ): Promise<Project> {
     return <Promise<Project>><unknown> this.prisma.project.findFirst({
       where: { id },
-      include: {
-        members: true,
-        media: true,
-        awards: true,
-        metadata: true,
-      },
+      include: projectsInclude,
     });
   }
 
@@ -46,19 +41,12 @@ export class ProjectQuery {
       dbOrderBy = { createdAt: 'asc' };
     }
 
-    const dbWhere = projectsWhereToPrisma(where);
-
     return <Promise<Project[]>><unknown> this.prisma.project.findMany({
       skip,
       take: take || 25,
       orderBy: dbOrderBy,
-      where: dbWhere,
-      include: {
-        members: true,
-        media: true,
-        awards: true,
-        metadata: true,
-      },
+      where: projectsWhereToPrisma(where),
+      include: projectsInclude,
     });
   }
 }

@@ -4,6 +4,7 @@ import {
 import { PrismaClient, ProjectUpdateInput } from '@prisma/client';
 import { Inject } from 'typedi';
 import { Context } from '../context';
+import { projectsInclude } from '../queryUtils';
 import { Project } from '../types/Project';
 import { ProjectSubscriptionTopics } from './ProjectSubscription';
 import { CreateProjectInput } from '../inputs/CreateProjectInput';
@@ -40,12 +41,7 @@ export class ProjectMutation {
         },
         ...project,
       },
-      include: {
-        members: true,
-        media: true,
-        awards: true,
-        metadata: true,
-      },
+      include: projectsInclude,
     });
 
     pubSub.publish(ProjectSubscriptionTopics.Create, newProject);
@@ -73,12 +69,7 @@ export class ProjectMutation {
 
     const editedProject = <Project><unknown> this.prisma.project.findFirst({
       where: { id },
-      include: {
-        members: true,
-        media: true,
-        awards: true,
-        metadata: true,
-      },
+      include: projectsInclude,
     });
 
     pubSub.publish(ProjectSubscriptionTopics.Edit, editedProject);
@@ -100,12 +91,7 @@ export class ProjectMutation {
       where: {
         id,
       },
-      include: {
-        members: true,
-        media: true,
-        awards: true,
-        metadata: true,
-      },
+      include: projectsInclude,
     });
     if (!projectToDelete) return false;
 
@@ -150,12 +136,7 @@ export class ProjectMutation {
       where: {
         id,
       },
-      include: {
-        members: true,
-        media: true,
-        awards: true,
-        metadata: true,
-      },
+      include: projectsInclude,
     });
 
     pubSub.publish(ProjectSubscriptionTopics.Edit, editedProject);

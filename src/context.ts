@@ -1,5 +1,5 @@
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
-import { AuthContext, provideAuthContext } from './auth/context';
+import { AuthContext, provideAuthContext } from './auth/AuthContext';
 
 export interface Context {
   auth: AuthContext

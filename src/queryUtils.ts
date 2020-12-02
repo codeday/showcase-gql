@@ -1,4 +1,4 @@
-import { ProjectWhereInput } from '@prisma/client';
+import { ProjectWhereInput, ProjectInclude } from '@prisma/client';
 import { ProjectsWhere, MediaFilterArg } from './inputs/ProjectsWhere';
 
 export function projectsWhereToPrisma(where?: ProjectsWhere): ProjectWhereInput {
@@ -67,3 +67,9 @@ export function projectsWhereToPrisma(where?: ProjectsWhere): ProjectWhereInput 
 
   return dbWhere;
 }
+
+export const projectsInclude: ProjectInclude = {
+  members: true,
+  media: true,
+  awards: true,
+};

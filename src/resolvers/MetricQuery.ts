@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client';
 import { Inject } from 'typedi';
 import { MetricAggregate } from '../types/MetricAggregate';
 import { ProjectsWhere } from '../inputs/ProjectsWhere';
-import { projectsWhereToPrisma } from '../queryUtils';
+import { projectsWhereToPrisma, projectsInclude } from '../queryUtils';
 import { Project } from '../types/Project';
 
 @Resolver(MetricAggregate)
@@ -21,10 +21,7 @@ export class MetricSummaryQuery {
     const allProjects = await this.prisma.project.findMany({
       where: projectsWhereToPrisma(where),
       include: {
-        members: true,
-        media: true,
-        awards: true,
-        metadata: true,
+        ...projectsInclude,
         metrics: {
           where: { name },
           orderBy: [{ createdAt: 'desc' }],

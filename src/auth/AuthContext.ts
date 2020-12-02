@@ -5,7 +5,7 @@ import {
 } from '@prisma/client';
 import { Container } from 'typedi';
 import config from '../config';
-import { AuthToken } from './token';
+import { AuthToken } from './AuthToken';
 import { Project } from '../types/Project';
 import { MetadataVisibility } from '../types/MetadataVisibility';
 
@@ -14,6 +14,10 @@ export class AuthContext {
 
   constructor(token?: AuthToken) {
     this.token = token;
+  }
+
+  isGlobalAdmin(): boolean {
+    return this.adminFlag && !this.eventId;
   }
 
   isEventAdmin(id: string): boolean {
@@ -77,6 +81,20 @@ export class AuthContext {
     return <Enumerable<MetadataWhereInput>>includeConditions.map((elem) => ({ visibility: elem }));
   }
 
+  async isJudgeForProject(project: Project): Promise<boolean> {
+    if (!this.token?.j) return false;
+
+    const judgingPool = await Container.get(PrismaClient).judgingPool.findFirst({ where: { id: this.token.j } });
+    if (!judgingPool) return false;
+
+    if (judgingPool.eventId && project.eventId !== judgingPool.eventId) return false;
+    if (judgingPool.eventGroupId && project.eventGroupId !== judgingPool.eventGroupId) return false;
+    if (judgingPool.regionId && project.regionId !== judgingPool.regionId) return false;
+    if (judgingPool.programId && project.programId !== judgingPool.programId) return false;
+
+    return true;
+  }
+
   canSetVisibility(project: Project, visibility: MetadataVisibility): boolean {
     const allowed = <MetadataVisibility[]> (<MetadataWhereInput[]> this.visibilityConditions(project))
       .map((elem) => elem.visibility);
@@ -85,7 +103,7 @@ export class AuthContext {
   }
 
   get username(): string | undefined {
-    return this.token?.u;
+    return this.token?.u || this.token?.sub;
   }
 
   get eventId(): string | undefined {
@@ -106,6 +124,14 @@ export class AuthContext {
 
   get adminFlag(): boolean {
     return this.token?.a || false;
+  }
+
+  get judgingPoolId(): string | undefined {
+    return this.token?.j;
+  }
+
+  get judgingPoolCanViewResults(): boolean {
+    return this.token?.jvr || false;
   }
 }
 

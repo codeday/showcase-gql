@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client';
 import { Inject } from 'typedi';
 import { Context } from '../context';
 import { ProjectSubscriptionTopics } from './ProjectSubscription';
+import { projectsInclude } from '../queryUtils';
 import { Metadata } from '../types/Metadata';
 import { MetadataVisibility } from '../types/MetadataVisibility';
 import { Project } from '../types/Project';
@@ -57,12 +58,7 @@ export class MetadataMutation {
 
     pubSub.publish(ProjectSubscriptionTopics.Edit, await this.prisma.project.findFirst({
       where: { id: project },
-      include: {
-        members: true,
-        metadata: true,
-        media: true,
-        awards: true,
-      },
+      include: projectsInclude,
     }));
     return true;
   }
@@ -88,12 +84,7 @@ export class MetadataMutation {
 
     pubSub.publish(ProjectSubscriptionTopics.Edit, await this.prisma.project.findFirst({
       where: { id: project },
-      include: {
-        members: true,
-        metadata: true,
-        media: true,
-        awards: true,
-      },
+      include: projectsInclude,
     }));
     return true;
   }

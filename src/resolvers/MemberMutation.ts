@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client';
 import { Inject } from 'typedi';
 import { Context } from '../context';
 import { Member } from '../types/Member';
+import { projectsInclude } from '../queryUtils';
 import { MemberSubscriptionTopics } from './MemberSubscription';
 
 @Resolver(Member)
@@ -35,12 +36,7 @@ export class MemberMutation {
       },
       include: {
         project: {
-          include: {
-            members: true,
-            media: true,
-            awards: true,
-            metadata: true,
-          },
+          include: projectsInclude,
         },
       },
     });
@@ -66,12 +62,7 @@ export class MemberMutation {
       },
       include: {
         project: {
-          include: {
-            members: true,
-            media: true,
-            awards: true,
-            metadata: true,
-          },
+          include: projectsInclude,
         },
       },
     });

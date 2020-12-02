@@ -8,6 +8,7 @@ import { Media } from './Media';
 import { Award } from './Award';
 import { Member } from './Member';
 import { Metadata } from './Metadata';
+import { Judgement } from './Judgement';
 import { Context } from '../context';
 
 @ObjectType()
@@ -66,11 +67,37 @@ export class Project {
   @Field(() => [Member], { nullable: true })
   members: Member[]
 
+  @Field(() => [Judgement], { nullable: true })
+  async userJudgement(
+    @Ctx() { auth }: Context,
+  ): Promise<Judgement[] | undefined> {
+    if (!auth.judgingPoolId) throw new Error('You are not a judge.');
+    if (!auth.isJudgeForProject(this)) throw new Error('You are not a judge for this project.');
+
+    return <Promise<Judgement[]>><unknown> Container.get(PrismaClient).judgement.findMany({
+      where: {
+        judgingPool: { id: auth.judgingPoolId },
+        project: { id: this.id },
+        username: auth.username,
+      },
+      include: {
+        judgingCriteria: {
+          include: {
+            judgingPool: true,
+          },
+        },
+        judgingPool: true,
+      },
+      distinct: ['judgingCriteriaId'],
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   @Field(() => [Metadata], { nullable: true })
   async metadata(
     @Ctx() { auth }: Context,
   ): Promise<Metadata[]> {
-    return <Metadata[]><unknown> Container.get(PrismaClient).metadata.findMany({
+    return <Promise<Metadata[]>><unknown> Container.get(PrismaClient).metadata.findMany({
       where: {
         projectId: this.id,
         OR: auth.visibilityConditions(this),
@@ -83,7 +110,7 @@ export class Project {
     @Ctx() { auth }: Context,
     @Arg('key') key: string,
   ): Promise<string> {
-    const metadata = <Metadata><unknown> Container.get(PrismaClient).metadata.findFirst({
+    const metadata = <Metadata><unknown> await Container.get(PrismaClient).metadata.findFirst({
       where: {
         projectId: this.id,
         key,

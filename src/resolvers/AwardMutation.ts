@@ -4,6 +4,7 @@ import {
 import { PrismaClient } from '@prisma/client';
 import { Inject } from 'typedi';
 import { Context } from '../context';
+import { projectsInclude } from '../queryUtils';
 import { ProjectSubscriptionTopics } from './ProjectSubscription';
 import { Award } from '../types/Award';
 
@@ -12,6 +13,10 @@ export class MemberMutation {
   @Inject(() => PrismaClient)
   private readonly prisma : PrismaClient;
 
+  /**
+   * Adds an award to a project. (The definition of "awards" are not tracked in Showcase, and should be loaded from a
+   * different federated schema or hard-coded into the end client.)
+   */
   @Mutation(() => Boolean)
   async addAward(
     @Ctx() { auth }: Context,
@@ -45,18 +50,16 @@ export class MemberMutation {
       where: {
         id: project,
       },
-      include: {
-        members: true,
-        media: true,
-        awards: true,
-        metadata: true,
-      },
+      include: projectsInclude,
     });
 
     pubSub.publish(ProjectSubscriptionTopics.Edit, editedProject);
     return true;
   }
 
+  /**
+   * Removes an award from a project.
+   */
   @Mutation(() => Boolean)
   async removeAward(
     @Ctx() { auth }: Context,
@@ -77,12 +80,7 @@ export class MemberMutation {
       where: {
         id: removingAward?.projectId,
       },
-      include: {
-        members: true,
-        media: true,
-        awards: true,
-        metadata: true,
-      },
+      include: projectsInclude,
     });
 
     pubSub.publish(ProjectSubscriptionTopics.Edit, editedProject);
