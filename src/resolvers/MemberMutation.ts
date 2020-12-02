@@ -78,6 +78,7 @@ export class MemberMutation {
 
     if (!removingMember) return false;
 
+    await this.prisma.metric.deleteMany({ where: { projectId: project, username } });
     await this.prisma.member.deleteMany({ where: { projectId: project, username } });
     pubSub.publish(MemberSubscriptionTopics.Remove, removingMember);
     return true;

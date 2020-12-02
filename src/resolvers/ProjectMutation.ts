@@ -109,6 +109,11 @@ export class ProjectMutation {
     });
     if (!projectToDelete) return false;
 
+    await this.prisma.metadata.deleteMany({ where: { projectId: id } });
+    await this.prisma.metric.deleteMany({ where: { projectId: id } });
+    await this.prisma.media.deleteMany({ where: { projectId: id } });
+    await this.prisma.member.deleteMany({ where: { projectId: id } });
+    await this.prisma.award.deleteMany({ where: { projectId: id } });
     await this.prisma.project.delete({
       where: { id },
     });
