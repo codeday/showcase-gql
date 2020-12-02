@@ -70,7 +70,7 @@ export class JudgingPool {
         judgements: {
           where: {
             username: auth.username,
-            judgingPool: { id: auth.judgingPoolId },
+            judgingPool: { id: this.id },
           },
         },
       },
@@ -95,6 +95,7 @@ export class JudgingPool {
       include: {
         ...projectsInclude,
         judgements: {
+          where: { judgingPool: { id: this.id } },
           include: {
             judgingCriteria: true,
           },
