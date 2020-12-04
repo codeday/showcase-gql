@@ -36,6 +36,7 @@ export default async function server(): Promise<void> {
         schema,
         execute,
         subscribe,
+        context: () => ({}),
       },
       wsServer,
     );
