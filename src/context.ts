@@ -5,7 +5,7 @@ export interface Context {
   auth: AuthContext
 }
 
-export function createContext(expressContext: ExpressContext) : Context {
+export function createContext(expressContext?: ExpressContext) : Context {
   return {
     auth: provideAuthContext(expressContext),
   };
