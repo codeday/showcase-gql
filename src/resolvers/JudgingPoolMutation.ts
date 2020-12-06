@@ -33,6 +33,7 @@ export class JudgingPoolMutation {
       data: {
         name: judgingPool.name,
         eventId: judgingPool.eventId,
+        eventGroupId: judgingPool.eventGroupId,
         regionId: judgingPool.regionId,
         programId: judgingPool.programId,
         judgingCriteria: {
