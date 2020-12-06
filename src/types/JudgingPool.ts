@@ -78,9 +78,14 @@ export class JudgingPool {
       take: 500,
     });
 
-    if (!needsJudging) return <Project[]><unknown> allProjects.slice(0, take || 25);
+    if (!needsJudging) {
+      return <Project[]><unknown> allProjects
+        .sort(() => (Math.random() > 0.5 ? 1 : -1))
+        .slice(0, take || 25);
+    }
     return <Project[]><unknown> allProjects
       .filter((p) => p.judgements.length < this.judgingCriteria.length)
+      .sort(() => (Math.random() > 0.5 ? 1 : -1))
       .slice(0, take || 25);
   }
 
