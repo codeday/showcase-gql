@@ -54,8 +54,9 @@ export class JudgingPool {
 
   @Field(() => [Project])
   async projects(
-    @Arg('needsJudging', () => Boolean, { nullable: true, defaultValue: false }) needsJudging = false,
     @Ctx() { auth }: Context,
+      @Arg('take', () => Number, { nullable: true, defaultValue: 25 }) take = 25,
+      @Arg('needsJudging', () => Boolean, { nullable: true, defaultValue: false }) needsJudging = false,
   ): Promise<Project[]> {
     if (needsJudging && !auth?.judgingPoolId) {
       throw new Error('You must have a judge token to see projects needing judging.');
@@ -77,8 +78,10 @@ export class JudgingPool {
       take: 500,
     });
 
-    if (!needsJudging) return <Project[]><unknown> allProjects;
-    return <Project[]><unknown> allProjects.filter((p) => p.judgements.length < this.judgingCriteria.length);
+    if (!needsJudging) return <Project[]><unknown> allProjects.slice(0, take || 25);
+    return <Project[]><unknown> allProjects
+      .filter((p) => p.judgements.length < this.judgingCriteria.length)
+      .slice(0, take || 25);
   }
 
   @Field(() => [JudgingResult])
@@ -102,6 +105,7 @@ export class JudgingPool {
           },
         },
       },
+      take: 500,
     });
 
     return allProjects.map((p) => {
