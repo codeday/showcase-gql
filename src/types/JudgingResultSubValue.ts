@@ -8,4 +8,7 @@ export class JudgingResultSubValue {
 
   @Field(() => Number)
   value: number;
+
+  @Field(() => Number)
+  count: number;
 }
