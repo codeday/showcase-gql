@@ -74,6 +74,7 @@ export class JudgingPool {
           },
         },
       },
+      take: 500,
     });
 
     if (!needsJudging) return <Project[]><unknown> allProjects;
