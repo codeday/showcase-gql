@@ -70,6 +70,5 @@ export function projectsWhereToPrisma(where?: ProjectsWhere): ProjectWhereInput 
 
 export const projectsInclude: ProjectInclude = {
   members: true,
-  media: true,
   awards: true,
 };

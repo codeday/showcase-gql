@@ -9,6 +9,8 @@ import { Award } from './Award';
 import { Member } from './Member';
 import { Metadata } from './Metadata';
 import { Judgement } from './Judgement';
+import { MediaType } from './MediaType';
+import { MediaTopic } from './MediaTopic';
 import { Context } from '../context';
 
 @ObjectType()
@@ -59,7 +61,23 @@ export class Project {
   regionId?: string;
 
   @Field(() => [Media], { nullable: true })
-  media: Media[];
+  async media(
+    @Arg('type', () => MediaType, { nullable: true }) type?: MediaType,
+    @Arg('topics', () => [MediaTopic], { nullable: true }) topics?: MediaTopic[],
+      @Arg('take', () => Number, { defaultValue: 100 }) take = 100,
+  ): Promise<Media[]> {
+    return <Promise<Media[]>><unknown> Container.get(PrismaClient).media.findMany({
+      where: {
+        project: { id: this.id },
+        ...(type === MediaType.IMAGE && { type: 'IMAGE' }),
+        ...(type === MediaType.VIDEO && { type: 'VIDEO' }),
+        ...(topics && topics.length > 0 && {
+          OR: topics.map((t) => ({ topic: t })),
+        }),
+      },
+      take,
+    });
+  }
 
   @Field(() => [Award], { nullable: true })
   awards: Award[]
