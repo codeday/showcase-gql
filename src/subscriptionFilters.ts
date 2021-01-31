@@ -15,7 +15,7 @@ function matchMediaFilter(mediaFilter: MediaFilterArg, media: Media[]) {
 }
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-export function matchProject(where: ProjectsWhere, project: Project): boolean {
+export async function matchProject(where: ProjectsWhere, project: Project): Promise<boolean> {
   if (!where) return true;
 
   if (where.event && where.event !== project.eventId) return false;
@@ -25,7 +25,7 @@ export function matchProject(where: ProjectsWhere, project: Project): boolean {
   if (where.user && !project.members.map((u) => u.username).includes(where.user)) return false;
   if (where.featured && !project.featured) return false;
   if (where.awarded && project.awards.length === 0) return false;
-  if (where.media && !matchMediaFilter(where.media, project.media)) return false;
+  if (where.media && !matchMediaFilter(where.media, await project.media())) return false;
 
   return true;
 }
