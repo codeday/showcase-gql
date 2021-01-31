@@ -17,8 +17,8 @@ export class Award {
   @Field(() => String)
   type: string;
 
-  @Field(() => String)
-  modifier: string;
+  @Field(() => String, { nullable: true })
+  modifier?: string;
 
   /* Relations */
   @Field(() => Project)
