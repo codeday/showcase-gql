@@ -116,7 +116,7 @@ export class ProjectMutation {
     @Ctx() { auth }: Context,
     @PubSub() pubSub: PubSubEngine,
     @Arg('id') id: string,
-    @Arg('isFeatured', { nullable: true }) isFeatured?: boolean,
+    @Arg('isFeatured', () => Boolean, { nullable: true }) isFeatured?: boolean,
   ): Promise<boolean> {
     const dbProject = await this.prisma.project.findFirst({ where: { id } });
     if (!dbProject || !await auth.isEventAdmin(dbProject.eventId)) {

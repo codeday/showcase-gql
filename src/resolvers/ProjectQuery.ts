@@ -30,8 +30,8 @@ export class ProjectQuery {
 
   @Query(() => [Project])
   async projects(
-    @Arg('skip', { nullable: true }) skip?: number,
-    @Arg('take', { nullable: true }) take?: number,
+    @Arg('skip', () => Number, { nullable: true }) skip?: number,
+    @Arg('take', () => Number, { nullable: true }) take?: number,
     @Arg('orderBy', () => ProjectOrderByArg, { nullable: true }) orderBy?: ProjectOrderByArg,
     @Arg('where', () => ProjectsWhere, { nullable: true }) where?: ProjectsWhere,
   ): Promise<Project[]> {

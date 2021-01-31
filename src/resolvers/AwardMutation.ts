@@ -23,7 +23,7 @@ export class MemberMutation {
     @PubSub() pubSub: PubSubEngine,
     @Arg('project') project: string,
     @Arg('type') type: string,
-    @Arg('modifier', { nullable: true }) modifier?: string,
+    @Arg('modifier', () => String, { nullable: true }) modifier?: string,
   ): Promise<Award> {
     const dbProject = await this.prisma.project.findFirst({ where: { id: project } });
     if (!dbProject || !await auth.isEventAdmin(dbProject.eventId)) {
