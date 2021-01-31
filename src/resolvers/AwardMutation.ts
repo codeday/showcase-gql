@@ -17,14 +17,14 @@ export class MemberMutation {
    * Adds an award to a project. (The definition of "awards" are not tracked in Showcase, and should be loaded from a
    * different federated schema or hard-coded into the end client.)
    */
-  @Mutation(() => Boolean)
+  @Mutation(() => Award)
   async addAward(
     @Ctx() { auth }: Context,
     @PubSub() pubSub: PubSubEngine,
     @Arg('project') project: string,
     @Arg('type') type: string,
     @Arg('modifier', { nullable: true }) modifier?: string,
-  ): Promise<boolean> {
+  ): Promise<Award> {
     const dbProject = await this.prisma.project.findFirst({ where: { id: project } });
     if (!dbProject || !await auth.isEventAdmin(dbProject.eventId)) {
       throw new Error('No permission to admin this project.');
@@ -34,7 +34,7 @@ export class MemberMutation {
       throw new Error('Project has already recieved this award.');
     }
 
-    await this.prisma.award.create({
+    const result = await this.prisma.award.create({
       data: {
         type,
         modifier,
@@ -54,7 +54,7 @@ export class MemberMutation {
     });
 
     pubSub.publish(ProjectSubscriptionTopics.Edit, editedProject);
-    return true;
+    return <Award><unknown> result;
   }
 
   /**
