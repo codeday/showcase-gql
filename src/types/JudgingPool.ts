@@ -28,10 +28,10 @@ export class JudgingPool {
   name: string;
 
   /* Relations */
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   eventId: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   programId: string;
 
   @Field(() => String, { nullable: true })
