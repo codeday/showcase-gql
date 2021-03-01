@@ -21,7 +21,9 @@ export function projectsWhereToPrisma(where?: ProjectsWhere): ProjectWhereInput 
     dbWhere.programId = where.program;
   }
   if (where?.awarded) {
-    dbWhere.awards = {};
+    dbWhere.awards = {
+      some: {},
+    };
   }
   if (where?.user) {
     dbWhere.members = {
@@ -33,7 +35,9 @@ export function projectsWhereToPrisma(where?: ProjectsWhere): ProjectWhereInput 
 
   // Where media filters
   if (where?.media === MediaFilterArg.ANY) {
-    dbWhere.media = {};
+    dbWhere.media = {
+      some: {},
+    };
   } else if (where?.media === MediaFilterArg.IMAGES) {
     dbWhere.media = {
       some: {
