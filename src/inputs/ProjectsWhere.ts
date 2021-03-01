@@ -31,6 +31,9 @@ export class ProjectsWhere {
     @Field(() => Boolean, { nullable: true })
     awarded?: boolean;
 
+    @Field(() => String, { nullable: true })
+    contains?: string;
+
     @Field(() => MediaFilterArg, { nullable: true })
     media?: MediaFilterArg;
 }

@@ -33,6 +33,17 @@ export function projectsWhereToPrisma(where?: ProjectsWhere): ProjectWhereInput 
     };
   }
 
+  if (where?.contains) {
+    dbWhere.OR = {
+      name: {
+        contains: where.contains,
+      },
+      description: {
+        contains: where.contains,
+      },
+    };
+  }
+
   // Where media filters
   if (where?.media === MediaFilterArg.ANY) {
     dbWhere.media = {
