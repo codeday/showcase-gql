@@ -33,6 +33,10 @@ export function projectsWhereToPrisma(where?: ProjectsWhere): ProjectWhereInput 
     };
   }
 
+  if (where?.type) {
+    dbWhere.type = where.type;
+  }
+
   if (where?.contains) {
     dbWhere.OR = {
       name: {

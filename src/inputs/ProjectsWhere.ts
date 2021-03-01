@@ -1,4 +1,5 @@
 import { InputType, Field, registerEnumType } from 'type-graphql';
+import { ProjectType } from '../types/ProjectType';
 
 export enum MediaFilterArg {
   ANY = 'any',
@@ -27,6 +28,9 @@ export class ProjectsWhere {
 
     @Field(() => Boolean, { nullable: true })
     featured?: boolean;
+
+    @Field(() => ProjectType, { nullable: true })
+    type?: ProjectType;
 
     @Field(() => Boolean, { nullable: true })
     awarded?: boolean;
