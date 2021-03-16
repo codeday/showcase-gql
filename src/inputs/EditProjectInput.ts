@@ -16,6 +16,9 @@ export class EditProjectInput {
   priorExperience?: string;
 
   @Field(() => String, { nullable: true })
+  challengesEncountered?: string;
+
+  @Field(() => String, { nullable: true })
   codeLink?: string;
 
   @Field(() => String, { nullable: true })
