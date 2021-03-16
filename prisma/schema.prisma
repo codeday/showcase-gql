@@ -101,6 +101,8 @@ model Member {
 
   project           Project         @relation(fields: [projectId], references: [id])
   projectId         String
+
+  metrics           Metric[]
 }
 
 model Metadata {
