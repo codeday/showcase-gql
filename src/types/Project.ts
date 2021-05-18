@@ -65,6 +65,7 @@ export class Project {
 
   @Field(() => [Media], { nullable: true })
   async media(
+    @Ctx() ctx?: Context,
     @Arg('type', () => MediaType, { nullable: true }) type?: MediaType,
     @Arg('topics', () => [MediaTopic], { nullable: true }) topics?: MediaTopic[],
       @Arg('take', () => Number, { defaultValue: 100 }) take = 100,
@@ -76,10 +77,17 @@ export class Project {
         ...(type === MediaType.VIDEO && { type: MediaType.VIDEO }),
 
         // Hide judges' media if the project doesn't have a published award yet.
-        ...(this.awards && this.awards.length > 0 ? {} : { topic: { not: MediaTopic.JUDGES } }),
+        ...((this.awards && this.awards.length > 0) || ctx?.auth?.isEventAdmin(this.id)
+          ? {}
+          : { topic: { not: MediaTopic.JUDGES } }
+        ),
         ...(topics && topics.length > 0 && {
           OR: topics
-            .filter((t) => (this.awards && this.awards.length > 0) || t !== MediaTopic.JUDGES)
+            .filter((t) => (
+              (this.awards && this.awards.length > 0)
+                || ctx?.auth?.isEventAdmin(this.id)
+                || t !== MediaTopic.JUDGES
+            ))
             .map((t) => ({ topic: t })),
         }),
       },
