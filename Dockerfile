@@ -2,7 +2,7 @@ FROM node:14.8 as builder
 RUN apt-get -qy update && apt-get install -qy openssl
 WORKDIR /app
 COPY ./package.json ./yarn.lock /app/
-RUN yarn install && npm i -g @prisma/cli
+RUN yarn install && npm i -g @prisma/cli@2.12.1
 
 COPY ./ /app
 
