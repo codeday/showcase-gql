@@ -25,4 +25,7 @@ export interface AuthToken {
 
   /** If true, and a judging pool is assigned, the user can view the results. */
   jvr?: boolean
+
+  /** If true, and a judging pool is assigned, the user can upload Judges' media. */
+  jum?: boolean
 }

@@ -133,6 +133,10 @@ export class AuthContext {
   get judgingPoolCanViewResults(): boolean {
     return this.token?.jvr || false;
   }
+
+  get judgingPoolCanUploadMedia(): boolean {
+    return this.token?.jum || false;
+  }
 }
 
 export function provideAuthContext(ctx?: ExpressContext): AuthContext {

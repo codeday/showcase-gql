@@ -22,6 +22,9 @@ The payload may contain the following:
 - `g` ("eventGroupId", optional): For newly created projects (if null cannot create any), only used for discovery.
 - `r` ("regionId", optional): For newly created projects, only used for discovery.
 - `p` ("programId", optional): For newly created projects, only used for discovery.
+- `j` ("judgingPoolId", optional): A judging pool ID to judge projects in.
+- `jvr` ("judgingViewResults", optional): Allows judges to view results in their pool.
+- `jum` ("judgingViewMedia", optional): Allows judges to upload judges' media to projects in their pool.
 
 ### Example Payloads
 
