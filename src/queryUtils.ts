@@ -1,9 +1,12 @@
-import { ProjectWhereInput, ProjectInclude } from '@prisma/client';
+import { ProjectWhereInput, ProjectInclude, MediaListRelationFilter } from '@prisma/client';
 import { ProjectsWhere, MediaFilterArg } from './inputs/ProjectsWhere';
+import { AuthContext } from './auth/AuthContext';
+import { MediaTopic } from './types/MediaTopic';
 
-export function projectsWhereToPrisma(where?: ProjectsWhere): ProjectWhereInput {
+export function projectsWhereToPrisma(where?: ProjectsWhere, auth?: AuthContext): ProjectWhereInput {
   if (!where) return {};
 
+  // TODO(@tylermenezes): Refactor to have everything push to dbWhere.AND
   const dbWhere: ProjectWhereInput = {};
   if (where?.event) {
     dbWhere.eventId = where.event;
@@ -52,41 +55,44 @@ export function projectsWhereToPrisma(where?: ProjectsWhere): ProjectWhereInput 
     ];
   }
 
+  const mediaWhere: MediaListRelationFilter[] = [];
+
   // Where media filters
   if (where?.media === MediaFilterArg.ANY) {
-    dbWhere.media = {
-      some: {},
-    };
+    mediaWhere.push({ some: {} });
   } else if (where?.media === MediaFilterArg.IMAGES) {
-    dbWhere.media = {
-      some: {
-        type: 'IMAGE',
-      },
-    };
+    mediaWhere.push({ some: { type: 'IMAGE' } });
   } else if (where?.media === MediaFilterArg.VIDEOS) {
-    dbWhere.media = {
-      some: {
-        type: 'VIDEO',
-      },
-    };
+    mediaWhere.push({ some: { type: 'VIDEO' } });
   } else if (where?.media === MediaFilterArg.BOTH) {
-    dbWhere.AND = [
-      {
-        media: {
-          some: {
-            type: 'IMAGE',
-          },
-        },
-      },
-      {
-        media: {
-          some: {
-            type: 'VIDEO',
-          },
-        },
-      },
-    ];
+    mediaWhere.push({ some: { type: 'IMAGE' } });
+    mediaWhere.push({ some: { type: 'VIDEO' } });
   }
+
+  // Media topic filters
+  if (where?.mediaTopic) {
+    if (where.mediaTopic === MediaTopic.JUDGES && !auth?.isGlobalAdmin()) {
+      // Only select projects with VISIBLE judges' media.
+      dbWhere.OR = [
+        {
+          awards: { some: {} },
+          media: { some: { topic: MediaTopic.JUDGES } },
+        },
+        auth?.adminFlag === true && auth?.eventId ? ({
+          eventId: auth.eventId,
+          media: { some: { topic: MediaTopic.JUDGES } },
+        }) : null,
+        auth?.adminFlag === true && auth?.eventGroupId ? ({
+          eventGroupId: auth.eventGroupId,
+          media: { some: { topic: MediaTopic.JUDGES } },
+        }) : null,
+      ].filter(Boolean);
+    } else {
+      mediaWhere.push({ some: { topic: where.mediaTopic } });
+    }
+  }
+
+  if (mediaWhere) dbWhere.AND = mediaWhere.map((m) => ({ media: m }));
 
   return dbWhere;
 }

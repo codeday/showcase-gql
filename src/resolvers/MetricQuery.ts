@@ -1,5 +1,5 @@
 import {
-  Resolver, Query, Arg,
+  Resolver, Query, Arg, Ctx,
 } from 'type-graphql';
 import { PrismaClient } from '@prisma/client';
 import { Inject } from 'typedi';
@@ -8,6 +8,7 @@ import { MetricTimeSeries } from '../types/MetricTimeSeries';
 import { ProjectsWhere } from '../inputs/ProjectsWhere';
 import { projectsWhereToPrisma, projectsInclude } from '../queryUtils';
 import { Project } from '../types/Project';
+import { Context } from '../context';
 
 const PROJECT_READY_DESCRIPTION_MIN_LENGTH = 140;
 const PROJECT_READY_EXPERIENCE_MIN_LENGTH = 15;
@@ -19,11 +20,12 @@ export class MetricSummaryQuery {
 
   @Query(() => [MetricAggregate])
   async averageMemberRecentResponses(
+    @Ctx() { auth }: Context,
     @Arg('name') name: string,
     @Arg('projectWhere', () => ProjectsWhere, { nullable: true }) where?: ProjectsWhere,
   ): Promise<MetricAggregate[]> {
     const allProjects = await this.prisma.project.findMany({
-      where: projectsWhereToPrisma(where),
+      where: projectsWhereToPrisma(where, auth),
       include: {
         ...projectsInclude,
         metrics: {
@@ -45,10 +47,11 @@ export class MetricSummaryQuery {
 
   @Query(() => Number)
   async presentationReadyPercent(
+    @Ctx() { auth }: Context,
     @Arg('where', () => ProjectsWhere) where?: ProjectsWhere,
   ): Promise<number> {
     const allProjects = await this.prisma.project.findMany({
-      where: projectsWhereToPrisma(where),
+      where: projectsWhereToPrisma(where, auth),
       include: {
         media: true,
       },
@@ -70,10 +73,11 @@ export class MetricSummaryQuery {
 
   @Query(() => [MetricTimeSeries])
   async projectsOverTime(
+    @Ctx() { auth }: Context,
     @Arg('where', () => ProjectsWhere) where?: ProjectsWhere,
   ): Promise<MetricTimeSeries[]> {
     const allProjects = await this.prisma.project.findMany({
-      where: projectsWhereToPrisma(where),
+      where: projectsWhereToPrisma(where, auth),
       orderBy: [{ createdAt: 'asc' }],
     });
 
@@ -85,10 +89,11 @@ export class MetricSummaryQuery {
 
   @Query(() => [MetricTimeSeries])
   async membersOverTime(
+    @Ctx() { auth }: Context,
     @Arg('where', () => ProjectsWhere) where?: ProjectsWhere,
   ): Promise<MetricTimeSeries[]> {
     const allProjects = await this.prisma.project.findMany({
-      where: projectsWhereToPrisma(where),
+      where: projectsWhereToPrisma(where, auth),
       include: {
         members: true,
       },

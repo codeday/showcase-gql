@@ -1,11 +1,12 @@
 import {
-  Resolver, Query, Arg, registerEnumType,
+  Resolver, Query, Arg, registerEnumType, Ctx,
 } from 'type-graphql';
 import { PrismaClient, ProjectOrderByInput } from '@prisma/client';
 import { Inject } from 'typedi';
 import { Project } from '../types/Project';
 import { ProjectsWhere } from '../inputs/ProjectsWhere';
 import { projectsWhereToPrisma, projectsInclude } from '../queryUtils';
+import { Context } from '../context';
 
 enum ProjectOrderByArg {
   NEWEST = 'newest',
@@ -30,6 +31,7 @@ export class ProjectQuery {
 
   @Query(() => [Project])
   async projects(
+    @Ctx() { auth }: Context,
     @Arg('skip', () => Number, { nullable: true }) skip?: number,
     @Arg('take', () => Number, { nullable: true }) take?: number,
     @Arg('orderBy', () => ProjectOrderByArg, { nullable: true }) orderBy?: ProjectOrderByArg,
@@ -45,7 +47,7 @@ export class ProjectQuery {
       skip,
       take: take || 25,
       orderBy: dbOrderBy,
-      where: projectsWhereToPrisma(where),
+      where: projectsWhereToPrisma(where, auth),
       include: projectsInclude,
     });
   }

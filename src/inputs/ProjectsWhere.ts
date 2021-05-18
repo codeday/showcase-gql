@@ -1,5 +1,6 @@
 import { InputType, Field, registerEnumType } from 'type-graphql';
 import { ProjectType } from '../types/ProjectType';
+import { MediaTopic } from '../types/MediaTopic';
 
 export enum MediaFilterArg {
   ANY = 'any',
@@ -40,4 +41,7 @@ export class ProjectsWhere {
 
     @Field(() => MediaFilterArg, { nullable: true })
     media?: MediaFilterArg;
+
+    @Field(() => MediaTopic, { nullable: true })
+    mediaTopic?: MediaTopic;
 }
