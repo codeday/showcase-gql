@@ -72,10 +72,15 @@ export class Project {
     return <Promise<Media[]>><unknown> Container.get(PrismaClient).media.findMany({
       where: {
         project: { id: this.id },
-        ...(type === MediaType.IMAGE && { type: 'IMAGE' }),
-        ...(type === MediaType.VIDEO && { type: 'VIDEO' }),
+        ...(type === MediaType.IMAGE && { type: MediaType.IMAGE }),
+        ...(type === MediaType.VIDEO && { type: MediaType.VIDEO }),
+
+        // Hide judges' media if the project doesn't have a published award yet.
+        ...(this.awards && this.awards.length > 0 ? {} : { topic: { not: MediaTopic.JUDGES } }),
         ...(topics && topics.length > 0 && {
-          OR: topics.map((t) => ({ topic: t })),
+          OR: topics
+            .filter((t) => (this.awards && this.awards.length > 0) || t !== MediaTopic.JUDGES)
+            .map((t) => ({ topic: t })),
         }),
       },
       take,
