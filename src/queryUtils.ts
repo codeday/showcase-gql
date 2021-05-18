@@ -64,9 +64,11 @@ export function projectsWhereToPrisma(where?: ProjectsWhere, auth?: AuthContext)
     mediaWhere.push({ some: { type: 'IMAGE' } });
   } else if (where?.media === MediaFilterArg.VIDEOS) {
     mediaWhere.push({ some: { type: 'VIDEO' } });
+  } else if (where?.media == MediaFilterArg.AUDIOS) {
+    mediaWhere.push({ some: { type: 'AUDIO' } });
   } else if (where?.media === MediaFilterArg.BOTH) {
     mediaWhere.push({ some: { type: 'IMAGE' } });
-    mediaWhere.push({ some: { type: 'VIDEO' } });
+    mediaWhere.push({ some: { OR: [{ type: 'VIDEO' }, { type: 'AUDIO' }] } });
   }
 
   // Media topic filters

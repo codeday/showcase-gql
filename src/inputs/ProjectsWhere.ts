@@ -6,6 +6,7 @@ export enum MediaFilterArg {
   ANY = 'any',
   IMAGES = 'images',
   VIDEOS = 'videos',
+  AUDIOS = 'audios',
   BOTH = 'both',
 }
 registerEnumType(MediaFilterArg, { name: 'MediaFilterType' });

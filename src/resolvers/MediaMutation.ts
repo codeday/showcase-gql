@@ -48,9 +48,9 @@ export class MediaMutation {
     }
     const uploadBuffer = Buffer.concat(chunks);
 
-    // Upload a video
-    if (type === MediaType.VIDEO) {
-      const result = await this.uploader.video(uploadBuffer, upload.filename || '_.mp4');
+    // Upload a video or audio
+    if (type === MediaType.VIDEO || type === MediaType.AUDIO) {
+      const result = await this.uploader.video(uploadBuffer, upload.filename || (MediaType.VIDEO ? '_.mp4' : '_.mp3'));
       return <Media><unknown> this.prisma.media.create({
         data: {
           type,
