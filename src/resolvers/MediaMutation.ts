@@ -58,7 +58,7 @@ export class MediaMutation {
           project: {
             connect: { id: project },
           },
-          image: result.image,
+          image: type === MediaType.AUDIO ? 'https://f1.codeday.org/showcase/audio_preview.png' : result.image,
           stream: result.stream,
           download: result.url,
         },
