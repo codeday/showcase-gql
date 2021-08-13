@@ -102,4 +102,5 @@ export function projectsWhereToPrisma(where?: ProjectsWhere, auth?: AuthContext)
 export const projectsInclude: ProjectInclude = {
   members: true,
   awards: true,
+  reactionCounts: true,
 };

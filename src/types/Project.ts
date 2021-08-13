@@ -11,6 +11,7 @@ import { Metadata } from './Metadata';
 import { Judgement } from './Judgement';
 import { MediaType } from './MediaType';
 import { MediaTopic } from './MediaTopic';
+import { ReactionCount } from './ReactionCount';
 import { Context } from '../context';
 
 @ObjectType()
@@ -100,6 +101,9 @@ export class Project {
 
   @Field(() => [Member], { nullable: true })
   members: Member[]
+
+  @Field(() => [ReactionCount])
+  reactionCounts: ReactionCount[]
 
   @Field(() => [Judgement], { nullable: true })
   async userJudgement(

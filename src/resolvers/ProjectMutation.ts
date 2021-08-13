@@ -9,6 +9,9 @@ import { Project } from '../types/Project';
 import { ProjectSubscriptionTopics } from './ProjectSubscription';
 import { CreateProjectInput } from '../inputs/CreateProjectInput';
 import { EditProjectInput } from '../inputs/EditProjectInput';
+import { AddReactionsInput } from '../inputs/AddReactionsInput';
+
+const MAX_REACTIONS_PER_UPDATE = 50;
 
 @Resolver(Project)
 export class ProjectMutation {
@@ -140,6 +143,38 @@ export class ProjectMutation {
     });
 
     pubSub.publish(ProjectSubscriptionTopics.Edit, editedProject);
+    return true;
+  }
+
+  /**
+   * Adds reactions to a project. There are effectively no limits to how many reactions can be added per user. This
+   * is intentional. No sorting option is provided for most-reactions for this reason.
+   */
+  @Mutation(() => Boolean)
+  async addReactions(
+    @PubSub() pubSub: PubSubEngine,
+    @Arg('id') id: string,
+    @Arg('reactions', () => [AddReactionsInput]) reactions: AddReactionsInput[],
+  ): Promise<boolean> {
+    const dbProjectExists = await this.prisma.project.count({ where: { id } });
+    if (dbProjectExists === 0) throw Error('Project does not exist.');
+
+    await Promise.all(reactions.map((r) => (
+      this.prisma.$executeRaw`
+        INSERT INTO ReactionCount(projectId, type, count)
+        VALUES(${id}, ${r.type}, ${Math.max(0, Math.min(r.count, MAX_REACTIONS_PER_UPDATE))})
+        ON DUPLICATE KEY UPDATE count = count + ${Math.max(0, Math.min(r.count, MAX_REACTIONS_PER_UPDATE))}
+      `
+    )));
+
+    const reactedProject = await this.prisma.project.findFirst({
+      where: {
+        id,
+      },
+      include: projectsInclude,
+    });
+
+    pubSub.publish(ProjectSubscriptionTopics.React, reactedProject);
     return true;
   }
 }

@@ -18,6 +18,7 @@ export enum ProjectSubscriptionTopics {
   Create = 'PROJECT_CREATE',
   Edit = 'PROJECT_EDIT',
   Delete = 'PROJECT_DELETE',
+  React = 'PROJECT_REACT',
 }
 
 @Resolver(Project)
