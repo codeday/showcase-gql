@@ -103,6 +103,7 @@ export class ProjectMutation {
     await this.prisma.media.deleteMany({ where: { projectId: id } });
     await this.prisma.member.deleteMany({ where: { projectId: id } });
     await this.prisma.award.deleteMany({ where: { projectId: id } });
+    await this.prisma.reactionCount.deleteMany({ where: { projectId: id } });
     await this.prisma.project.delete({
       where: { id },
     });
