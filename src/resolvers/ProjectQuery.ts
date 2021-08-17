@@ -21,10 +21,12 @@ export class ProjectQuery {
 
   @Query(() => Project)
   async project(
-    @Arg('id') id: string,
+    @Arg('id', { nullable: true }) id?: string,
+    @Arg('slug', { nullable: true }) slug?: string,
   ): Promise<Project> {
+    if ((id && slug) || (!id && !slug)) throw new Error('Set either id or slug.');
     return <Promise<Project>><unknown> this.prisma.project.findFirst({
-      where: { id },
+      where: { id, slug: slug ? slug.toLowerCase() : undefined },
       include: projectsInclude,
     });
   }

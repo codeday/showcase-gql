@@ -27,6 +27,9 @@ export class Project {
   updatedAt: Date;
 
   /* Fields */
+  @Field(() => String, { nullable: true })
+  slug?: string;
+
   @Field(() => String)
   name: string;
 

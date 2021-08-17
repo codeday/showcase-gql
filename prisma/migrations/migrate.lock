@@ -11,3 +11,5 @@
 20210518135812-add-judges-media-type
 20210518180713-add-audio-type
 20210813132401-create-reactions
+20210817220021-add-slug
+20210817220151-slug-unique

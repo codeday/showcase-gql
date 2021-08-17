@@ -4,6 +4,9 @@ import { ProjectType } from '../types/ProjectType';
 @InputType()
 export class EditProjectInput {
   @Field(() => String, { nullable: true })
+  slug?: string;
+
+  @Field(() => String, { nullable: true })
   name?: string;
 
   @Field(() => ProjectType, { nullable: true })

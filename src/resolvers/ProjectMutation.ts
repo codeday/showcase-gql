@@ -5,6 +5,7 @@ import { PrismaClient, ProjectUpdateInput } from '@prisma/client';
 import { Inject } from 'typedi';
 import { Context } from '../context';
 import { projectsInclude } from '../queryUtils';
+import { MediaType } from '../types/MediaType';
 import { Project } from '../types/Project';
 import { ProjectSubscriptionTopics } from './ProjectSubscription';
 import { CreateProjectInput } from '../inputs/CreateProjectInput';
@@ -62,6 +63,27 @@ export class ProjectMutation {
     @Arg('project', () => EditProjectInput) project: EditProjectInput,
   ): Promise<Project> {
     if (!await auth.isProjectAdminById(id)) throw new Error('No permission to edit this project.');
+    if (project.slug) {
+      // eslint-disable-next-line no-param-reassign
+      project.slug = project.slug.toLowerCase()
+        .replace(/[^a-zA-Z0-9-]/g, '-')
+        .replace(/-+/g, '-');
+      if ((await this.prisma.project.count({
+        where: { slug: project.slug, id: { not: id } },
+      })) > 0) {
+        throw new Error('That slug is taken.');
+      }
+
+      const dbProject = await this.prisma.project.findUnique({
+        where: { id },
+        include: { media: { where: { type: MediaType.IMAGE } } },
+      });
+      if (!dbProject) throw new Error('No such project.');
+      if (dbProject.slug && !auth.isGlobalAdmin) throw new Error('Project slug already set.');
+      if (dbProject.media.length === 0 && !auth.isGlobalAdmin) {
+        throw new Error('Upload at least one image to set a slug.');
+      }
+    }
 
     await this.prisma.project.update({
       where: {
