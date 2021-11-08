@@ -3,6 +3,7 @@ import { ProjectsWhere, MediaFilterArg } from './inputs/ProjectsWhere';
 import { AuthContext } from './auth/AuthContext';
 import { MediaTopic } from './types/MediaTopic';
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export function projectsWhereToPrisma(where?: ProjectsWhere, auth?: AuthContext): ProjectWhereInput {
   if (!where) return {};
 
@@ -64,7 +65,7 @@ export function projectsWhereToPrisma(where?: ProjectsWhere, auth?: AuthContext)
     mediaWhere.push({ some: { type: 'IMAGE' } });
   } else if (where?.media === MediaFilterArg.VIDEOS) {
     mediaWhere.push({ some: { type: 'VIDEO' } });
-  } else if (where?.media == MediaFilterArg.AUDIOS) {
+  } else if (where?.media === MediaFilterArg.AUDIOS) {
     mediaWhere.push({ some: { type: 'AUDIO' } });
   } else if (where?.media === MediaFilterArg.BOTH) {
     mediaWhere.push({ some: { type: 'IMAGE' } });
@@ -94,7 +95,10 @@ export function projectsWhereToPrisma(where?: ProjectsWhere, auth?: AuthContext)
     }
   }
 
-  if (mediaWhere) dbWhere.AND = mediaWhere.map((m) => ({ media: m }));
+  dbWhere.AND = [
+    ...mediaWhere.map((m) => ({ media: m })),
+    ...(where.metadata || []).map((m) => ({ metadata: { some: { key: m.key, value: m.value } } })),
+  ];
 
   return dbWhere;
 }

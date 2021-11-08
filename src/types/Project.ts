@@ -136,12 +136,12 @@ export class Project {
 
   @Field(() => [Metadata], { nullable: true })
   async metadata(
-    @Ctx() { auth }: Context,
+    @Ctx() ctx?: Context,
   ): Promise<Metadata[]> {
     return <Promise<Metadata[]>><unknown> Container.get(PrismaClient).metadata.findMany({
       where: {
         projectId: this.id,
-        OR: auth.visibilityConditions(this),
+        OR: ctx?.auth ? ctx.auth.visibilityConditions(this) : [{ visibility: 'PUBLIC' }],
       },
     });
   }

@@ -26,6 +26,13 @@ export async function matchProject(where: ProjectsWhere, project: Project): Prom
   if (where.featured && !project.featured) return false;
   if (where.awarded && project.awards.length === 0) return false;
   if (where.media && !matchMediaFilter(where.media, await project.media())) return false;
+  if (where.metadata) {
+    const metadata = await project.metadata();
+    for (const { key, value } of where.metadata) {
+      const metadataEntry = metadata.filter((m) => key === m.key)[0];
+      if (!metadataEntry || metadataEntry.value !== value) return false;
+    }
+  }
 
   return true;
 }
