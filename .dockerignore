@@ -6,3 +6,4 @@ generated/
 .eslint*
 README.md
 node_modules/
+Dockerfile

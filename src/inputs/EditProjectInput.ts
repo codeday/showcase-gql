@@ -27,7 +27,7 @@ export class EditProjectInput {
   @Field(() => String, { nullable: true })
   viewLink?: string;
 
-  @Field(() => String, { nullable: true })
+  @Field(() => [String], { nullable: true })
   tags?: string[];
 
   getSanitizedTags() {

@@ -93,7 +93,7 @@ export class ProjectMutation {
       },
       data: {
         ...<ProjectUpdateInput>projectData,
-        tags: { connectOrCreate: project.getSanitizedTags().map((t) => ({ where: { id: t }, create: { id: t } })) },
+        tags: { set: project.getSanitizedTags().map((t) => ({ id: t })) },
       },
     });
 
@@ -190,9 +190,9 @@ export class ProjectMutation {
     await Promise.all(reactions.map((r) => {
       const addReactions = Math.max(0, Math.min(r.count, MAX_REACTIONS_PER_UPDATE));
       this.prisma.$executeRaw`
-        INSERT INTO "ReactionCount" (projectId, type, count)
+        INSERT INTO "ReactionCount" ("projectId", type, count)
         VALUES(${id}, ${r.type}, ${addReactions})
-        ON CONFLICT (projectId) DO UPDATE SET count = count + ${addReactions}
+        ON CONFLICT ("projectId", "type") DO UPDATE SET count = "ReactionCount".count + ${addReactions}
       `;
     }));
 
