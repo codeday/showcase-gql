@@ -1,5 +1,5 @@
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -44,6 +44,13 @@ enum ReactionType {
   GRIN
 }
 
+
+model Tag {
+  id String @id
+  projects Project[]
+}
+
+
 model Project {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -71,6 +78,7 @@ model Project {
   metrics      Metric[]
   judgements   Judgement[]
   reactionCounts    ReactionCount[]
+  tags Tag[]
 }
 
 model Media {

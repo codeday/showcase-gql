@@ -41,19 +41,23 @@ export function projectsWhereToPrisma(where?: ProjectsWhere, auth?: AuthContext)
     dbWhere.type = where.type;
   }
 
+  const dbAnd: ProjectWhereInput[] = [];
+
   if (where?.contains) {
-    dbWhere.OR = [
+    dbAnd.push({ OR: [
       {
         name: {
           contains: where.contains,
+          mode: 'insensitive',
         },
       },
       {
         description: {
           contains: where.contains,
+          mode: 'insensitive',
         },
       },
-    ];
+    ]});
   }
 
   const mediaWhere: MediaListRelationFilter[] = [];
@@ -76,7 +80,7 @@ export function projectsWhereToPrisma(where?: ProjectsWhere, auth?: AuthContext)
   if (where?.mediaTopic) {
     if (where.mediaTopic === MediaTopic.JUDGES && !auth?.isGlobalAdmin()) {
       // Only select projects with VISIBLE judges' media.
-      dbWhere.OR = [
+      dbAnd.push(...<ProjectWhereInput[]><unknown>[
         {
           awards: { some: {} },
           media: { some: { topic: MediaTopic.JUDGES } },
@@ -89,15 +93,20 @@ export function projectsWhereToPrisma(where?: ProjectsWhere, auth?: AuthContext)
           eventGroupId: auth.eventGroupId,
           media: { some: { topic: MediaTopic.JUDGES } },
         }) : null,
-      ].filter(Boolean);
+      ].filter(Boolean));
     } else {
       mediaWhere.push({ some: { topic: where.mediaTopic } });
     }
   }
 
+  if (where?.tags) {
+    dbAnd.push({ OR: where.tags.map((t) => ({ tags: { some: { id: t } } })) });
+  }
+
   dbWhere.AND = [
     ...mediaWhere.map((m) => ({ media: m })),
     ...(where.metadata || []).map((m) => ({ metadata: { some: { key: m.key, value: m.value } } })),
+    ...dbAnd,
   ];
 
   return dbWhere;

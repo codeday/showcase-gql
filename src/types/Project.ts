@@ -134,6 +134,19 @@ export class Project {
     });
   }
 
+  @Field(() => [String])
+  async tags(
+    @Ctx() ctx?: Context,
+  ): Promise<string[]> {
+    const tags = await Container.get(PrismaClient).tag.findMany({
+      where: {
+        projects: { some: { id: this.id }}
+      },
+    });
+    return tags.map((t) => t.id);
+  }
+
+
   @Field(() => [Metadata], { nullable: true })
   async metadata(
     @Ctx() ctx?: Context,

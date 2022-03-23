@@ -85,11 +85,16 @@ export class ProjectMutation {
       }
     }
 
+    const { tags, ...projectData } = project;
+
     await this.prisma.project.update({
       where: {
         id,
       },
-      data: <ProjectUpdateInput>project,
+      data: {
+        ...<ProjectUpdateInput>projectData,
+        tags: { connectOrCreate: project.getSanitizedTags().map((t) => ({ where: { id: t }, create: { id: t } })) },
+      },
     });
 
     const editedProject = <Project><unknown> this.prisma.project.findFirst({
@@ -182,13 +187,14 @@ export class ProjectMutation {
     const dbProjectExists = await this.prisma.project.count({ where: { id } });
     if (dbProjectExists === 0) throw Error('Project does not exist.');
 
-    await Promise.all(reactions.map((r) => (
+    await Promise.all(reactions.map((r) => {
+      const addReactions = Math.max(0, Math.min(r.count, MAX_REACTIONS_PER_UPDATE));
       this.prisma.$executeRaw`
-        INSERT INTO ReactionCount(projectId, type, count)
-        VALUES(${id}, ${r.type}, ${Math.max(0, Math.min(r.count, MAX_REACTIONS_PER_UPDATE))})
-        ON DUPLICATE KEY UPDATE count = count + ${Math.max(0, Math.min(r.count, MAX_REACTIONS_PER_UPDATE))}
-      `
-    )));
+        INSERT INTO "ReactionCount" (projectId, type, count)
+        VALUES(${id}, ${r.type}, ${addReactions})
+        ON CONFLICT (projectId) DO UPDATE SET count = count + ${addReactions}
+      `;
+    }));
 
     const reactedProject = await this.prisma.project.findFirst({
       where: {

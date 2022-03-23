@@ -26,4 +26,13 @@ export class EditProjectInput {
 
   @Field(() => String, { nullable: true })
   viewLink?: string;
+
+  @Field(() => String, { nullable: true })
+  tags?: string[];
+
+  getSanitizedTags() {
+    return (this.tags || [])
+      .map((t) => t.trim().toLowerCase().replace(/[ _]/g, '-').replace(/[^a-z0-9\-]/g, ''))
+      .filter(Boolean);
+  }
 }

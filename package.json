@@ -1,5 +1,5 @@
 {
-  "name": "@codeday/discord-posts",
+  "name": "@codeday/showcase-gql",
   "version": "1.0.0",
   "main": "dist/index.js",
   "author": "Tyler Menezes <tylermenezes@srnd.org>",

@@ -49,4 +49,7 @@ export class ProjectsWhere {
 
     @Field(() => [MetadataWhere], { nullable: true })
     metadata?: MetadataWhere[];
+
+    @Field(() => [String], { nullable: true })
+    tags?: string[];
 }
