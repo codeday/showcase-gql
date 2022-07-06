@@ -44,41 +44,39 @@ enum ReactionType {
   GRIN
 }
 
-
 model Tag {
-  id String @id
+  id       String    @id
   projects Project[]
 }
-
 
 model Project {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  slug                    String? @unique
+  slug String? @unique
 
-  name                    String
-  featured                Boolean     @default(false)
-  type                    ProjectType @default(APP)
-  description             String?
-  priorExperience         String?
-  challengesEncountered   String?
-  codeLink                String?
-  viewLink                String?
+  name                  String
+  featured              Boolean     @default(false)
+  type                  ProjectType @default(APP)
+  description           String?
+  priorExperience       String?
+  challengesEncountered String?
+  codeLink              String?
+  viewLink              String?
 
-  eventId      String
-  programId    String      @default("codeday")
-  eventGroupId String?
-  regionId     String?
-  media        Media[]
-  awards       Award[]
-  members      Member[]
-  metadata     Metadata[]
-  metrics      Metric[]
-  judgements   Judgement[]
-  reactionCounts    ReactionCount[]
-  tags Tag[]
+  eventId        String
+  programId      String          @default("codeday")
+  eventGroupId   String?
+  regionId       String?
+  media          Media[]
+  awards         Award[]
+  members        Member[]
+  metadata       Metadata[]
+  metrics        Metric[]
+  judgements     Judgement[]
+  reactionCounts ReactionCount[]
+  tags           Tag[]
 }
 
 model Media {
@@ -204,11 +202,29 @@ model Judgement {
 }
 
 model ReactionCount {
-  type ReactionType
-  count Int @default(0)
+  type  ReactionType
+  count Int          @default(0)
 
   project   Project @relation(fields: [projectId], references: [id])
   projectId String
 
   @@id([type, projectId])
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  url       String
+  urlLarge  String
+  urlMedium String
+  urlSmall  String
+
+  thanks String?
+
+  programId    String? @default("codeday")
+  regionId     String
+  eventId      String?
+  eventGroupId String
 }
