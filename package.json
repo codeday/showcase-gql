@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node dist",
     "clean": "rm -rf dist",
-    "build": "npm -s run clean && npm -s run generate && npx tsc",
+    "build": "npm -s run generate && npx tsc",
     "generate": "prisma generate",
     "dev": "ts-node-dev --no-notify --respawn --transpile-only src",
     "debug": "ts-node-dev --no-notify --respawn src"

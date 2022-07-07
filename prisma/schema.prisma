@@ -217,14 +217,14 @@ model Photo {
   updatedAt DateTime @updatedAt
 
   url       String
-  urlLarge  String
-  urlMedium String
-  urlSmall  String
+  urlLarge  String?
+  urlMedium String?
+  urlSmall  String?
 
   thanks String?
 
-  programId    String? @default("codeday")
-  regionId     String
-  eventId      String?
-  eventGroupId String
+  programId    String @default("codeday")
+  regionId     String?
+  eventId      String
+  eventGroupId String?
 }
