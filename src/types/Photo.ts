@@ -35,8 +35,8 @@ export class Photo {
   eventId: string;
 
   @Field(() => String, { nullable: true })
-  regionId: string;
+  regionId?: string;
 
   @Field(() => String, { nullable: true })
-  eventGroupId: string;
+  eventGroupId?: string;
 }

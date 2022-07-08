@@ -223,8 +223,8 @@ model Photo {
 
   thanks String?
 
-  programId    String @default("codeday")
-  regionId     String?
+  programId    String  @default("codeday")
   eventId      String
+  regionId     String?
   eventGroupId String?
 }
