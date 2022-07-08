@@ -21,14 +21,14 @@ export class ImportPhotoInput {
   thanks?: string;
 
   @Field(() => String, { nullable: true })
-  programId?: string;
+  regionId?: string;
 
   @Field(() => String, { nullable: true })
-  eventId?: string;
+  eventGroupId?: string;
+
+  @Field(() => String, { nullable: true })
+  programId?: string;
 
   @Field(() => String)
-  regionId: string;
-
-  @Field(() => String)
-  eventGroupId: string;
+  eventId: string;
 }
