@@ -1,4 +1,7 @@
-import { ProjectWhereInput, ProjectInclude, MediaListRelationFilter } from '@prisma/client';
+import {
+  ProjectWhereInput, ProjectInclude, MediaListRelationFilter, PhotoWhereInput,
+} from '@prisma/client';
+import { PhotosWhere } from './inputs/PhotosWhere';
 import { ProjectsWhere, MediaFilterArg } from './inputs/ProjectsWhere';
 import { AuthContext } from './auth/AuthContext';
 import { MediaTopic } from './types/MediaTopic';
@@ -44,20 +47,22 @@ export function projectsWhereToPrisma(where?: ProjectsWhere, auth?: AuthContext)
   const dbAnd: ProjectWhereInput[] = [];
 
   if (where?.contains) {
-    dbAnd.push({ OR: [
-      {
-        name: {
-          contains: where.contains,
-          mode: 'insensitive',
+    dbAnd.push({
+      OR: [
+        {
+          name: {
+            contains: where.contains,
+            mode: 'insensitive',
+          },
         },
-      },
-      {
-        description: {
-          contains: where.contains,
-          mode: 'insensitive',
+        {
+          description: {
+            contains: where.contains,
+            mode: 'insensitive',
+          },
         },
-      },
-    ]});
+      ],
+    });
   }
 
   const mediaWhere: MediaListRelationFilter[] = [];
@@ -109,6 +114,25 @@ export function projectsWhereToPrisma(where?: ProjectsWhere, auth?: AuthContext)
     ...dbAnd,
   ];
 
+  return dbWhere;
+}
+
+// eslint-disable-next-line sonarjs/cognitive-complexity
+export function photosWhereToPrisma(where?: PhotosWhere): PhotoWhereInput {
+  if (!where) return {};
+  const dbWhere: PhotoWhereInput = {};
+  if (where?.event) {
+    dbWhere.eventId = where.event;
+  }
+  if (where?.eventGroup) {
+    dbWhere.eventGroupId = where.eventGroup;
+  }
+  if (where?.region) {
+    dbWhere.regionId = where.region;
+  }
+  if (where?.program) {
+    dbWhere.programId = where.program;
+  }
   return dbWhere;
 }
 
