@@ -20,7 +20,7 @@ export default async function server(): Promise<void> {
   });
 
   const app = Express();
-  app.use(graphqlUploadExpress({ maxFileSize: 125 * 1024 * 1024, maxFiles: 3 }));
+  app.use(graphqlUploadExpress({ maxFileSize: 250 * 1024 * 1024, maxFiles: 3 }));
   apollo.applyMiddleware({ app });
 
   const server = http.createServer(app);
