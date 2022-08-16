@@ -3,6 +3,7 @@ import {
 } from 'type-graphql';
 import { PrismaClient, PhotoOrderByInput } from '@prisma/client';
 import { Inject } from 'typedi';
+import shuffle from 'knuth-shuffle-seeded';
 import { Photo } from '../types/Photo';
 import { PhotosWhere } from '../inputs/PhotosWhere';
 import { photosWhereToPrisma } from '../queryUtils';
@@ -10,6 +11,7 @@ import { photosWhereToPrisma } from '../queryUtils';
 enum PhotoOrderByArg {
   NEWEST = 'newest',
   OLDEST = 'oldest',
+  RANDOM = 'random',
 }
 registerEnumType(PhotoOrderByArg, { name: 'PhotoOrderByArg' });
 
@@ -39,11 +41,22 @@ export class PhotoQuery {
       dbOrderBy = { createdAt: 'asc' };
     }
 
+    // Not a particularly great way to do this
+    if (orderBy === PhotoOrderByArg.RANDOM) {
+      const ids = shuffle((await this.prisma.photo.findMany({
+        where: photosWhereToPrisma(where),
+        select: { id: true },
+      })).map((e) => e.id)).slice(0, take);
+
+      return <Promise<Photo[]>><unknown> this.prisma.photo.findMany({ where: { id: { in: ids } } });
+    }
+
     return <Promise<Photo[]>><unknown> this.prisma.photo.findMany({
       skip,
       take: take || 25,
       orderBy: dbOrderBy,
       where: photosWhereToPrisma(where),
     });
+
   }
 }
