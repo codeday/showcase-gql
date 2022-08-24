@@ -39,4 +39,7 @@ export class Photo {
 
   @Field(() => String, { nullable: true })
   eventGroupId?: string;
+
+  @Field(() => Boolean)
+  featured: boolean;
 }
