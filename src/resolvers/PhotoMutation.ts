@@ -8,6 +8,7 @@ import { GraphQLUpload, FileUpload } from 'graphql-upload';
 import { Photo } from '../types/Photo';
 import { Context } from '../context';
 import { ImportPhotoInput } from '../inputs/ImportPhotoInput';
+import { EditPhotoInput } from '../inputs/EditPhotoInput';
 
 @Resolver(Photo)
 export class PhotoMutation {
@@ -70,4 +71,30 @@ export class PhotoMutation {
     });
   }
 
+  // Deletes a photo
+  @Mutation(() => Boolean)
+  async deletePhoto(
+      @Arg('id') id: string,
+      @Ctx() { auth }: Context,
+  ) : Promise<boolean> {
+    if (!auth.isGlobalAdmin()) throw new Error('No permission to delete this photo.');
+    await this.prisma.photo.delete({ where: { id } });
+    return true;
+  }
+
+  // Edits the fields of a photo
+  @Mutation(() => Photo)
+  async editPhoto(
+      @Ctx() { auth }: Context,
+      @Arg('id') id: string,
+      @Arg('data', () => EditPhotoInput) data: EditPhotoInput,
+  ): Promise<Photo> {
+    if (!auth.isGlobalAdmin()) throw new Error('No permission to update this photo.');
+    return <Photo><unknown> this.prisma.photo.update({
+      where: {
+        id,
+      },
+      data,
+    });
+  }
 }
