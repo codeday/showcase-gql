@@ -4,7 +4,7 @@ import {
 import { PrismaClient } from '@prisma/client';
 import { Container } from 'typedi';
 import { Context } from '../context';
-import { ProjectsWhere } from '../inputs/ProjectsWhere';
+import { MediaFilterArg, ProjectsWhere } from '../inputs/ProjectsWhere';
 import { JudgingCriteria } from './JudgingCriteria';
 import { Project } from './Project';
 import { JudgingResult } from './JudgingResult';
@@ -49,6 +49,7 @@ export class JudgingPool {
     where.eventGroup = this.eventGroupId;
     where.program = this.programId;
     where.region = this.regionId;
+    where.media = MediaFilterArg.ANY;
     return where;
   }
 
