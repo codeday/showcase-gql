@@ -13,4 +13,7 @@ export class PhotosWhere {
 
     @Field(() => String, { nullable: true })
     region?: string;
+
+    @Field(() => Boolean, { nullable: true })
+    featured?: boolean;
 }

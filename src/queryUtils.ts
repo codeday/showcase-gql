@@ -133,6 +133,9 @@ export function photosWhereToPrisma(where?: PhotosWhere): PhotoWhereInput {
   if (where?.program) {
     dbWhere.programId = where.program;
   }
+  if (where?.featured) {
+    dbWhere.featured = true;
+  }
   return dbWhere;
 }
 

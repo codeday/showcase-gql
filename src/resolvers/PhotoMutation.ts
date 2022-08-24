@@ -97,4 +97,30 @@ export class PhotoMutation {
       data,
     });
   }
+
+  /**
+ * Marks a photo as featured / not featured.
+ */
+  @Mutation(() => Boolean)
+  async featurePhoto(
+    @Ctx() { auth }: Context,
+    @Arg('id') id: string,
+    @Arg('isFeatured', () => Boolean, { nullable: true }) isFeatured?: boolean,
+  ): Promise<boolean> {
+    const dbPhoto = await this.prisma.photo.findFirst({ where: { id } });
+    if (!dbPhoto || !await auth.isEventAdmin(dbPhoto.eventId)) {
+      throw new Error('No permission to admin this photo.');
+    }
+
+    await this.prisma.photo.update({
+      where: {
+        id,
+      },
+      data: {
+        featured: typeof isFeatured !== 'undefined' ? isFeatured : true,
+      },
+    });
+
+    return true;
+  }
 }

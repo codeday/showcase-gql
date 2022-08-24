@@ -1,0 +1,37 @@
+{
+  "version": "0.3.14-fixed",
+  "steps": [
+    {
+      "tag": "CreateField",
+      "model": "Photo",
+      "field": "featured",
+      "type": "Boolean",
+      "arity": "Required"
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "Photo",
+          "field": "featured"
+        },
+        "directive": "default"
+      }
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "Photo",
+          "field": "featured"
+        },
+        "directive": "default"
+      },
+      "argument": "",
+      "value": "false"
+    }
+  ]
+}
