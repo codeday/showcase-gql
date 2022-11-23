@@ -90,4 +90,19 @@ export class MediaMutation {
     await this.prisma.media.delete({ where: { id } });
     return true;
   }
+
+  @Mutation(() => Boolean)
+  async featureMedia(
+    @Arg('id') id: string,
+    @Ctx() { auth }: Context,
+  ) : Promise<boolean> {
+    const media = await this.prisma.media.findFirst({ where: { id } });
+    if (!media || !await auth.isProjectAdminById(media.projectId)) throw new Error('No permission to edit this media.');
+
+    await Promise.all([
+      this.prisma.media.updateMany({ where: { projectId: media.projectId, id: { not: id } }, data: { featured: false } }),
+      this.prisma.media.update({ where: { id }, data: { featured: true } }),
+    ]);
+    return true;
+  }
 }

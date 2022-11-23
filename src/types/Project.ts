@@ -75,6 +75,7 @@ export class Project {
       @Arg('take', () => Number, { defaultValue: 100 }) take = 100,
   ): Promise<Media[]> {
     return <Promise<Media[]>><unknown> Container.get(PrismaClient).media.findMany({
+      orderBy: { featured: 'desc' },
       where: {
         project: { id: this.id },
         ...(type === MediaType.IMAGE && { type: MediaType.IMAGE }),

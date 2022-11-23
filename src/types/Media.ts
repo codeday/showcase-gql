@@ -23,6 +23,9 @@ export class Media {
   @Field(() => MediaTopic)
   topic: MediaTopic;
 
+  @Field(() => Boolean)
+  featured: boolean;
+
   image: string;
 
   @Field(() => String, { name: 'image' })
