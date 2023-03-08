@@ -44,6 +44,19 @@ export class AuthContext {
     return project.members?.map((m) => m.username).includes(this.username) || false;
   }
 
+  async isEventParticipant(eventId: string): Promise<boolean> {
+    const userProjects = await Container.get(PrismaClient).project.findMany({
+      where: {
+        members: {
+          some: {
+            username: this.username,
+          },
+        },
+      },
+    });
+    return userProjects.map((p) => p.eventId).includes(eventId);
+  }
+
   async isProjectAdminById(id: string): Promise<boolean> {
     const project = await Container.get(PrismaClient).project.findFirst({ where: { id }, include: { members: true } });
     if (!project) return false;

@@ -13,6 +13,8 @@ import { MediaType } from './MediaType';
 import { MediaTopic } from './MediaTopic';
 import { ReactionCount } from './ReactionCount';
 import { Context } from '../context';
+import { Kudos } from './Kudos';
+import { PeerJudgement } from './PeerJudgement';
 
 @ObjectType()
 export class Project {
@@ -141,12 +143,11 @@ export class Project {
   ): Promise<string[]> {
     const tags = await Container.get(PrismaClient).tag.findMany({
       where: {
-        projects: { some: { id: this.id }}
+        projects: { some: { id: this.id } },
       },
     });
     return tags.map((t) => t.id);
   }
-
 
   @Field(() => [Metadata], { nullable: true })
   async metadata(
@@ -187,5 +188,17 @@ export class Project {
     @Ctx() { auth }: Context,
   ): Promise<boolean> {
     return auth.isEventAdmin(this.eventId);
+  }
+
+  @Field(() => [PeerJudgement], { nullable: true })
+  async peerJudgements(
+      @Ctx() { auth }: Context,
+  ): Promise<PeerJudgement[]> {
+    if (!auth.isEventAdmin(this.eventId)) throw new Error('You are not an event admin');
+    return <Promise<PeerJudgement[]>><unknown>Container.get(PrismaClient).peerJudgement.findMany({
+      where: {
+        projectId: this.id,
+      },
+    });
   }
 }
