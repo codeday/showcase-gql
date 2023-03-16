@@ -5,7 +5,7 @@
   "author": "Tyler Menezes <tylermenezes@srnd.org>",
   "license": "Artistic-2.0",
   "scripts": {
-    "start": "prisma migrate deploy && node dist",
+    "start": "prisma migrate up --experiemental && node dist",
     "clean": "rm -rf dist",
     "build": "npm -s run clean && npm -s run generate && npx tsc",
     "generate": "prisma generate",
