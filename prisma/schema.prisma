@@ -75,8 +75,10 @@ model Project {
   metadata       Metadata[]
   metrics        Metric[]
   judgements     Judgement[]
+  peerJudgements PeerJudgement[]
   reactionCounts ReactionCount[]
   tags           Tag[]
+  kudos          Kudos[]
 }
 
 model Media {
@@ -231,4 +233,28 @@ model Photo {
   eventId      String
   regionId     String?
   eventGroupId String?
+}
+
+model PeerJudgement {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  username  String
+  eventId   String
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId String
+
+  @@unique([username, eventId, projectId])
+}
+
+model Kudos {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  username  String
+  reviewed  Boolean @default(false)
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId String
 }
