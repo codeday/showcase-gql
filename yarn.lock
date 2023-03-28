@@ -3383,11 +3383,6 @@ uglify-js@^3.1.4:
   resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.12.0.tgz#b943f129275c41d435eb54b643bbffee71dccf57"
   integrity sha512-8lBMSkFZuAK7gGF8LswsXmir8eX8d2AAMOnxSDWjKBx/fBR6MypQjs78m6ML9zQVp1/hD4TBdfeMZMC7nW1TAA==
 
-undici@2.0.7:
-  version "2.0.7"
-  resolved "https://registry.yarnpkg.com/undici/-/undici-2.0.7.tgz#3804cffa4c64bc6ae71e6b0f4d85054ea6b0fb91"
-  integrity sha512-3YoSJEva11i4iW+nUfo+r5EP+piSO667SU57hfNeW3kPG5ACl7IgHzhT+bT23j0v1lgs+vIHfxQfTGK32HEPIQ==
-
 unpipe@1.0.0, unpipe@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/unpipe/-/unpipe-1.0.0.tgz#b2bf4ee8514aae6165b4817829d21b2ef49904ec"

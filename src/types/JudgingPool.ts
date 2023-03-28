@@ -66,6 +66,7 @@ export class JudgingPool {
     const allProjects = await Container.get(PrismaClient).project.findMany({
       where: {
         ...projectsWhereToPrisma(this.getProjectsWhere(), auth),
+        members: { none: { username: auth.username } },
       },
       include: {
         ...projectsInclude,

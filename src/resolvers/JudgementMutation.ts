@@ -22,7 +22,7 @@ export class JudgementMutation {
     @Arg('judgingCriteria') judgingCriteria: string,
     @Arg('value') value: number,
   ): Promise<boolean> {
-    const dbProject = <Project><unknown> await this.prisma.project.findFirst({ where: { id: project } });
+    const dbProject = <Project><unknown> await this.prisma.project.findFirst({ where: { id: project }, include: { members: true } });
     if (!dbProject) throw new Error('Project does not exist.');
 
     const dbJudgingCriteria = await this.prisma.judgingCriteria.findFirst({ where: { id: judgingCriteria } });
@@ -31,6 +31,7 @@ export class JudgementMutation {
 
     if (!auth.username) throw new Error('You must be logged in to judge projects.');
     if (!auth.isJudgeForProject(dbProject)) throw new Error('You do not have permission to judge this project.');
+    if (dbProject.members.map((m) => m.username).includes(auth.username)) throw new Error('You cannot vote for your own project.');
 
     if (value < 0 || value > 1) throw new Error('Judgement value should be between 0 and 1.');
 
