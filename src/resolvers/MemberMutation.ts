@@ -53,7 +53,7 @@ export class MemberMutation {
     @Arg('username') username: string,
   ) : Promise<boolean> {
     if (!await auth.isProjectAdminById(project)) throw new Error('No permission to edit this project.');
-    if (username === auth.username) throw new Error('You cannot remove yourself from a project.');
+    if (username === auth.username && !auth.isGlobalAdmin) throw new Error('You cannot remove yourself from a project.');
 
     const removingMember = await this.prisma.member.findFirst({
       where: {

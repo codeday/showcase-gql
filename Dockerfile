@@ -1,4 +1,4 @@
-FROM node:14.8 as builder
+FROM node:14-bullseye as builder
 RUN apt-get -qy update && apt-get install -qy openssl
 WORKDIR /app
 COPY ./package.json ./yarn.lock /app/
@@ -8,7 +8,7 @@ COPY ./ /app
 
 RUN prisma generate && yarn run build
 
-FROM node:14.8-slim as runtime
+FROM node:14-bullseye as runtime
 RUN apt-get -qy update && apt-get install -qy openssl
 
 WORKDIR /app

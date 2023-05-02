@@ -32,7 +32,7 @@ export class MediaMutation {
     const dbProject = <Project><unknown> await this.prisma.project.findFirst({ where: { id: project } });
     if (!dbProject) throw new Error('Project does not exist.');
 
-    const canUploadJudges = (auth.isJudgeForProject(dbProject) && auth.judgingPoolCanUploadMedia)
+    const canUploadJudges = (await auth.isJudgeForProject(dbProject) && auth.judgingPoolCanUploadMedia)
       || auth.isEventAdmin(dbProject.eventId);
 
     if (topic === MediaTopic.JUDGES && !canUploadJudges) throw Error(`Cannot edit judging media`);
