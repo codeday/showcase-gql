@@ -1,13 +1,9 @@
-# fly.toml file generated for codeday-showcase-gql on 2021-11-17T16:39:15-05:00
+# fly.toml file generated for codeday-showcase-gql on 2023-05-24T09:53:21-07:00
 
 app = "codeday-showcase-gql"
-
 kill_signal = "SIGINT"
 kill_timeout = 5
-processes = []
-
-[env]
+primary_region = "sea"
 
 [experimental]
-  allowed_public_ports = []
   auto_rollback = true
