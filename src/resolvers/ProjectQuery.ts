@@ -19,7 +19,7 @@ export class ProjectQuery {
   @Inject(() => PrismaClient)
   private readonly prisma : PrismaClient;
 
-  @Query(() => Project)
+  @Query(() => Project, {nullable: true})
   async project(
     @Arg('id', { nullable: true }) id?: string,
     @Arg('slug', { nullable: true }) slug?: string,
