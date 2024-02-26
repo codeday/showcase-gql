@@ -11,6 +11,7 @@ import { ProjectSubscriptionTopics } from './ProjectSubscription';
 import { CreateProjectInput } from '../inputs/CreateProjectInput';
 import { EditProjectInput } from '../inputs/EditProjectInput';
 import { AddReactionsInput } from '../inputs/AddReactionsInput';
+import { generatePhrase } from '../utils/generatePhrase';
 
 const MAX_REACTIONS_PER_UPDATE = 50;
 
@@ -36,6 +37,7 @@ export class ProjectMutation {
         programId: auth.programId,
         eventGroupId: auth.eventGroupId,
         regionId: auth.regionId,
+        joinCode: generatePhrase(),
         members: {
           create: [
             {

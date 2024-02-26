@@ -27,6 +27,8 @@ enum MediaType {
 enum MediaTopic {
   TEAM
   DEMO
+  MUSIC
+  ART
   PRESENTATION
   JUDGES
 }
@@ -64,6 +66,7 @@ model Project {
   challengesEncountered String?
   codeLink              String?
   viewLink              String?
+  joinCode              String?
 
   eventId        String
   programId      String          @default("codeday")

@@ -15,6 +15,8 @@ import { ReactionCount } from './ReactionCount';
 import { Context } from '../context';
 import { Kudos } from './Kudos';
 import { PeerJudgement } from './PeerJudgement';
+import { generatePhrase } from '../utils/generatePhrase';
+
 
 @ObjectType()
 export class Project {
@@ -181,6 +183,20 @@ export class Project {
     @Ctx() { auth }: Context,
   ): Promise<boolean> {
     return auth.isProjectAdmin(this);
+  }
+
+  joinCode?: string
+
+  @Field(() => Boolean, { name: 'joinCode' })
+  async fetchJoinCode(
+    @Ctx() { auth }: Context,
+  ): Promise<string> {
+    if (!(await auth.isProjectAdmin(this))) throw new Error(`Only project admins can view join codes.`);
+    if (!this.joinCode) {
+      this.joinCode = generatePhrase();
+      await Container.get(PrismaClient).project.update({ where: { id: this.id }, data: { joinCode: this.joinCode } });
+    }
+    return this.joinCode;
   }
 
   @Field(() => Boolean, { name: 'canAdmin' })

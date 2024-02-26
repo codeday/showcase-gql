@@ -41,7 +41,7 @@ export class AuthContext {
     if (project.eventId === this.eventId) return true;
 
     if (!this.username) return false;
-    return project.members?.map((m) => m.username).includes(this.username) || false;
+    return project.members?.map((m) => m.username.toLowerCase()).includes(this.username.toLowerCase()) || false;
   }
 
   async isEventParticipant(eventId: string): Promise<boolean> {
@@ -50,7 +50,7 @@ export class AuthContext {
         eventId,
         members: {
           some: {
-            username: this.username,
+            username: { equals: this.username, mode: 'insensitive' },
           },
         },
       },

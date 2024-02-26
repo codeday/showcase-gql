@@ -32,6 +32,7 @@
     "reflect-metadata": "^0.1.13",
     "type-graphql": "^1.0.0-rc.3",
     "typedi": "^0.8.0",
+    "unique-names-generator": "^4.7.1",
     "ws": "^7.4.0"
   },
   "devDependencies": {
