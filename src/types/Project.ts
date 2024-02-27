@@ -1,7 +1,7 @@
 import {
-  ObjectType, Field, Ctx, Arg,
+  ObjectType, Field, Ctx, Arg
 } from 'type-graphql';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Media as PrismaMedia } from '@prisma/client';
 import { Container } from 'typedi';
 import { ProjectType } from './ProjectType';
 import { Media } from './Media';
@@ -104,6 +104,27 @@ export class Project {
     });
   }
 
+  @Field(() => Media, { nullable: true })
+  async coverImage(): Promise<PrismaMedia | null> {
+    const medias = await Container.get(PrismaClient).media.findMany({
+      where: {
+        project: { id: this.id },
+        type: MediaType.IMAGE,
+        OR: [{ topic: MediaTopic.ART }, { topic: MediaTopic.DEMO }, { topic: MediaTopic.TEAM }],
+      },
+    });
+
+    return medias.sort((a, b) => {
+      if (a.topic === 'ART' && b.topic !== 'ART') return -1;
+      if (a.topic !== 'ART' && b.topic === 'ART') return 1;
+      if (a.topic === 'DEMO' && b.topic !== 'DEMO') return -1;
+      if (a.topic !== 'DEMO' && b.topic === 'DEMO') return 1;
+      if (a.topic === 'TEAM' && b.topic !== 'TEAM') return -1;
+      if (a.topic !== 'TEAM' && b.topic === 'TEAM') return 1;
+      return a.createdAt > b.createdAt ? -1 : 1;
+    })[0] || null;
+  }
+
   @Field(() => [Award], { nullable: true })
   awards: Award[]
 
@@ -187,11 +208,11 @@ export class Project {
 
   joinCode?: string
 
-  @Field(() => Boolean, { name: 'joinCode' })
+  @Field(() => String, { name: 'joinCode', nullable: true })
   async fetchJoinCode(
     @Ctx() { auth }: Context,
-  ): Promise<string> {
-    if (!(await auth.isProjectAdmin(this))) throw new Error(`Only project admins can view join codes.`);
+  ): Promise<string | null> {
+    if (!(await auth.isProjectAdmin(this))) return null;
     if (!this.joinCode) {
       this.joinCode = generatePhrase();
       await Container.get(PrismaClient).project.update({ where: { id: this.id }, data: { joinCode: this.joinCode } });

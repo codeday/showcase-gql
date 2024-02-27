@@ -1,12 +1,13 @@
 import {
   Resolver, Mutation, Arg, Ctx, PubSub, PubSubEngine,
 } from 'type-graphql';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Project as PrismaProject } from '@prisma/client';
 import { Inject } from 'typedi';
 import { Context } from '../context';
 import { Member } from '../types/Member';
 import { projectsInclude } from '../queryUtils';
 import { MemberSubscriptionTopics } from './MemberSubscription';
+import { Project } from '../types/Project';
 
 @Resolver(Member)
 export class MemberMutation {
@@ -45,15 +46,16 @@ export class MemberMutation {
     return addedMember;
   }
 
-  @Mutation(() => Member)
+  @Mutation(() => Project)
   async joinProject(
     @Ctx() { auth }: Context,
     @PubSub() pubSub: PubSubEngine,
     @Arg('joinCode') joinCode: string,
-  ): Promise<Member> {
+  ): Promise<PrismaProject> {
     if (!auth.username) throw new Error('Not logged in.');
+    const fixedJoinCode = joinCode.toLowerCase().replace(/[^a-z0-9]/g, '-');
     const project = await this.prisma.project.findFirst({
-      where: { joinCode: { equals: joinCode, mode: 'insensitive' } }
+      where: { joinCode: { equals: fixedJoinCode, mode: 'insensitive' } }
     });
     if (!project) throw new Error(`Join code not found.`);
 
@@ -61,7 +63,7 @@ export class MemberMutation {
       throw new Error(`You are already a member of this project.`);
     }
 
-    const addedMember = <Promise<Member>><unknown> this.prisma.member.create({
+    const addedMember = await this.prisma.member.create({
       data: {
         username: auth.username.toLowerCase(),
         project: {
@@ -77,8 +79,8 @@ export class MemberMutation {
       },
     });
 
-    pubSub.publish(MemberSubscriptionTopics.Add, addedMember);
-    return addedMember;
+    pubSub.publish(MemberSubscriptionTopics.Add, <Member><unknown>addedMember);
+    return addedMember.project;
   }
 
   @Mutation(() => Boolean)
