@@ -1,7 +1,7 @@
 import {
   Resolver, Query, Arg, registerEnumType,
 } from 'type-graphql';
-import { PrismaClient, PhotoOrderByInput } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { Inject } from 'typedi';
 import shuffle from 'knuth-shuffle-seeded';
 import { Photo } from '../types/Photo';
@@ -18,13 +18,13 @@ registerEnumType(PhotoOrderByArg, { name: 'PhotoOrderByArg' });
 @Resolver(Photo)
 export class PhotoQuery {
   @Inject(() => PrismaClient)
-  private readonly prisma : PrismaClient;
+  private readonly prisma: PrismaClient;
 
   @Query(() => Photo)
   async photo(
     @Arg('id', { nullable: true }) id: string,
   ): Promise<Photo> {
-    return <Promise<Photo>><unknown> this.prisma.photo.findFirst({
+    return <Promise<Photo>><unknown>this.prisma.photo.findFirst({
       where: { id },
     });
   }
@@ -36,7 +36,7 @@ export class PhotoQuery {
     @Arg('orderBy', () => PhotoOrderByArg, { nullable: true }) orderBy?: PhotoOrderByArg,
     @Arg('where', () => PhotosWhere, { nullable: true }) where?: PhotosWhere,
   ): Promise<Photo[]> {
-    let dbOrderBy: PhotoOrderByInput = { createdAt: 'desc' };
+    let dbOrderBy: Prisma.PhotoOrderByWithRelationInput = { createdAt: 'desc' };
     if (orderBy === PhotoOrderByArg.OLDEST) {
       dbOrderBy = { createdAt: 'asc' };
     }
@@ -48,10 +48,10 @@ export class PhotoQuery {
         select: { id: true },
       })).map((e) => e.id)).slice(0, take);
 
-      return <Promise<Photo[]>><unknown> this.prisma.photo.findMany({ where: { id: { in: ids } } });
+      return <Promise<Photo[]>><unknown>this.prisma.photo.findMany({ where: { id: { in: ids } } });
     }
 
-    return <Promise<Photo[]>><unknown> this.prisma.photo.findMany({
+    return <Promise<Photo[]>><unknown>this.prisma.photo.findMany({
       skip,
       take: take || 25,
       orderBy: dbOrderBy,

@@ -1,7 +1,7 @@
 import {
   ObjectType, Field, Ctx, Arg,
 } from 'type-graphql';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { Container } from 'typedi';
 import { Context } from '../context';
 import { MediaFilterArg, ProjectsWhere } from '../inputs/ProjectsWhere';
@@ -56,8 +56,8 @@ export class JudgingPool {
   @Field(() => [Project])
   async projects(
     @Ctx() { auth }: Context,
-      @Arg('take', () => Number, { nullable: true, defaultValue: 25 }) take = 25,
-      @Arg('needsJudging', () => Boolean, { nullable: true, defaultValue: false }) needsJudging = false,
+    @Arg('take', () => Number, { nullable: true, defaultValue: 25 }) take = 25,
+    @Arg('needsJudging', () => Boolean, { nullable: true, defaultValue: false }) needsJudging = false,
   ): Promise<Project[]> {
     if (needsJudging && !auth?.judgingPoolId) {
       throw new Error('You must have a judge token to see projects needing judging.');
@@ -81,12 +81,19 @@ export class JudgingPool {
     });
 
     if (!needsJudging) {
-      return <Project[]><unknown> allProjects
+      return <Project[]><unknown>allProjects
         .sort(() => (Math.random() > 0.5 ? 1 : -1))
         .slice(0, take || 25);
     }
-    return <Project[]><unknown> allProjects
-      .filter((p) => p.judgements.length < this.judgingCriteria.length)
+    return <Project[]><unknown>allProjects
+      .filter((projectWithJudgements) => {
+        const p = projectWithJudgements as Prisma.ProjectGetPayload<{
+          include: {
+            judgements: true,
+          },
+        }>;
+        return p.judgements.length < this.judgingCriteria.length;
+      })
       .sort(() => (Math.random() > 0.5 ? 1 : -1))
       .slice(0, take || 25);
   }
@@ -115,7 +122,16 @@ export class JudgingPool {
       take: 500,
     });
 
-    return allProjects.map((p) => {
+    return allProjects.map((projectWithJudgements) => {
+      const p = projectWithJudgements as Prisma.ProjectGetPayload<{
+        include: {
+          judgements: {
+            include: {
+              judgingCriteria: true,
+            },
+          },
+        },
+      }>;
       const elementScores = this.judgingCriteria.map((criteria): JudgingResultSubValue => {
         const matchingJudgements = p.judgements.filter((j) => j.judgingCriteria.id === criteria.id);
         const sum = matchingJudgements.reduce((accum, j) => accum + j.value, 0);
@@ -132,7 +148,7 @@ export class JudgingPool {
       const score = sumWeighted / sumWeights;
 
       const result = new JudgingResult();
-      result.project = <Project><unknown> p;
+      result.project = <Project><unknown>p;
       result.subScores = elementScores;
       result.value = score;
       result.count = Math.max(...elementScores.map((e) => e.count));

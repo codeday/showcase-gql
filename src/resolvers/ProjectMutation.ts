@@ -1,7 +1,7 @@
 import {
   Resolver, Mutation, Arg, Ctx, PubSub, PubSubEngine,
 } from 'type-graphql';
-import { PrismaClient, ProjectUpdateInput } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { Inject } from 'typedi';
 import { Context } from '../context';
 import { projectsInclude } from '../queryUtils';
@@ -18,7 +18,7 @@ const MAX_REACTIONS_PER_UPDATE = 50;
 @Resolver(Project)
 export class ProjectMutation {
   @Inject(() => PrismaClient)
-  private readonly prisma : PrismaClient;
+  private readonly prisma: PrismaClient;
 
   /**
    * Creates a new project (with the event information coming from the user's token).
@@ -31,7 +31,7 @@ export class ProjectMutation {
   ): Promise<Project> {
     if (!auth.eventId || !auth.username) throw new Error('No permission to create projects.');
 
-    const newProject = <Project><unknown> this.prisma.project.create({
+    const newProject = <Project><unknown>this.prisma.project.create({
       data: {
         eventId: auth.eventId,
         programId: auth.programId,
@@ -94,12 +94,12 @@ export class ProjectMutation {
         id,
       },
       data: {
-        ...<ProjectUpdateInput>projectData,
+        ...<Prisma.ProjectUpdateInput>projectData,
         tags: { set: project.getSanitizedTags().map((t) => ({ id: t })) },
       },
     });
 
-    const editedProject = <Project><unknown> this.prisma.project.findFirst({
+    const editedProject = <Project><unknown>this.prisma.project.findFirst({
       where: { id },
       include: projectsInclude,
     });

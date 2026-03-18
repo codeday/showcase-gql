@@ -1,7 +1,7 @@
 import { verify } from 'jsonwebtoken';
-import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
+import { Request } from 'express';
 import {
-  PrismaClient, MetadataWhereInput, Enumerable, MetadataVisibility as DbMetadataVisibility,
+  PrismaClient, Prisma, MetadataVisibility as DbMetadataVisibility,
 } from '@prisma/client';
 import { Container } from 'typedi';
 import config from '../config';
@@ -63,7 +63,7 @@ export class AuthContext {
     return this.isProjectAdmin(<Partial<Project>><unknown>project);
   }
 
-  visibilityConditions(project: Project): Enumerable<MetadataWhereInput> {
+  visibilityConditions(project: Project): Prisma.Enumerable<Prisma.MetadataWhereInput> {
     if (this.isEventAdmin(project.eventId)) {
       return [
         { visibility: 'PUBLIC' },
@@ -84,14 +84,14 @@ export class AuthContext {
     ];
   }
 
-  visibilityConditionsInvert(project: Project): Enumerable<MetadataWhereInput> {
+  visibilityConditionsInvert(project: Project): Prisma.Enumerable<Prisma.MetadataWhereInput> {
     const conditions = this.visibilityConditions(project);
-    const excludeConditions = (<MetadataWhereInput[]>conditions).map((elem) => elem.visibility);
+    const excludeConditions = (<Prisma.MetadataWhereInput[]>conditions).map((elem) => elem.visibility);
     const includeConditions = Object.keys(MetadataVisibility)
       .filter((elem) => !excludeConditions.includes(<DbMetadataVisibility><unknown>elem));
 
     if (includeConditions.length === 0) return [{ projectId: '__never_match__' }];
-    return <Enumerable<MetadataWhereInput>>includeConditions.map((elem) => ({ visibility: elem }));
+    return <Prisma.Enumerable<Prisma.MetadataWhereInput>>includeConditions.map((elem) => ({ visibility: elem }));
   }
 
   async isJudgeForProject(project: Project): Promise<boolean> {
@@ -109,7 +109,7 @@ export class AuthContext {
   }
 
   canSetVisibility(project: Project, visibility: MetadataVisibility): boolean {
-    const allowed = <MetadataVisibility[]> (<MetadataWhereInput[]> this.visibilityConditions(project))
+    const allowed = <MetadataVisibility[]>(<Prisma.MetadataWhereInput[]>this.visibilityConditions(project))
       .map((elem) => elem.visibility);
 
     return allowed.includes(visibility);
@@ -152,7 +152,7 @@ export class AuthContext {
   }
 }
 
-export function provideAuthContext(ctx?: ExpressContext): AuthContext {
+export function provideAuthContext(ctx?: { req?: Request }): AuthContext {
   if (!ctx?.req) return new AuthContext();
 
   const { req } = ctx;

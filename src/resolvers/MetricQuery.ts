@@ -1,7 +1,7 @@
 import {
   Resolver, Query, Arg, Ctx,
 } from 'type-graphql';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { Inject } from 'typedi';
 import { MetricAggregate } from '../types/MetricAggregate';
 import { MetricTimeSeries } from '../types/MetricTimeSeries';
@@ -16,7 +16,7 @@ const PROJECT_READY_EXPERIENCE_MIN_LENGTH = 15;
 @Resolver(MetricAggregate)
 export class MetricSummaryQuery {
   @Inject(() => PrismaClient)
-  private readonly prisma : PrismaClient;
+  private readonly prisma: PrismaClient;
 
   @Query(() => [MetricAggregate])
   async averageMemberRecentResponses(
@@ -36,7 +36,12 @@ export class MetricSummaryQuery {
       },
     });
 
-    return allProjects.map(({ metrics, ...project }): MetricAggregate => {
+    return allProjects.map((projectWithMetrics): MetricAggregate => {
+      const { metrics, ...project } = projectWithMetrics as Prisma.ProjectGetPayload<{
+        include: {
+          metrics: true,
+        },
+      }>;
       const value = metrics.reduce((accum, metric) => accum + metric.value, 0) / metrics.length;
       return {
         value: typeof value === 'number' && !Number.isNaN(value) ? value : undefined,
