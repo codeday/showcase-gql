@@ -72,3 +72,29 @@ An admin token allowing editing all events in a region, giving awards, etc:
   "e": "codeday-seattle-spring-2020"
 }
 ```
+
+## Local Testing Workflow
+
+Start local dependencies (Postgres + Elasticsearch + app):
+
+```bash
+docker-compose up -d
+```
+
+Seed local test data:
+
+```bash
+yarn seed-dummy
+```
+
+Generate a JWT for local testing:
+
+```bash
+yarn generate-token event-test-2025 admin
+```
+
+Run sample GraphQL queries (public and auth when API_KEY is set):
+
+```bash
+API_KEY=<token-from-above> yarn test-queries
+```
