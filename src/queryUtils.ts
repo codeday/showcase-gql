@@ -1,5 +1,5 @@
 import {
-  ProjectWhereInput, ProjectInclude, MediaListRelationFilter, PhotoWhereInput,
+  Prisma,
 } from '@prisma/client';
 import { PhotosWhere } from './inputs/PhotosWhere';
 import { ProjectsWhere, MediaFilterArg } from './inputs/ProjectsWhere';
@@ -7,11 +7,11 @@ import { AuthContext } from './auth/AuthContext';
 import { MediaTopic } from './types/MediaTopic';
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-export function projectsWhereToPrisma(where?: ProjectsWhere, auth?: AuthContext): ProjectWhereInput {
+export function projectsWhereToPrisma(where?: ProjectsWhere, auth?: AuthContext): Prisma.ProjectWhereInput {
   if (!where) return {};
 
   // TODO(@tylermenezes): Refactor to have everything push to dbWhere.AND
-  const dbWhere: ProjectWhereInput = {};
+  const dbWhere: Prisma.ProjectWhereInput = {};
   if (where?.event) {
     dbWhere.eventId = where.event;
   }
@@ -44,7 +44,7 @@ export function projectsWhereToPrisma(where?: ProjectsWhere, auth?: AuthContext)
     dbWhere.type = where.type;
   }
 
-  const dbAnd: ProjectWhereInput[] = [];
+  const dbAnd: Prisma.ProjectWhereInput[] = [];
 
   if (where?.contains) {
     dbAnd.push({
@@ -65,7 +65,7 @@ export function projectsWhereToPrisma(where?: ProjectsWhere, auth?: AuthContext)
     });
   }
 
-  const mediaWhere: MediaListRelationFilter[] = [];
+  const mediaWhere: Prisma.MediaListRelationFilter[] = [];
 
   // Where media filters
   if (where?.media === MediaFilterArg.ANY) {
@@ -85,7 +85,7 @@ export function projectsWhereToPrisma(where?: ProjectsWhere, auth?: AuthContext)
   if (where?.mediaTopic) {
     if (where.mediaTopic === MediaTopic.JUDGES && !auth?.isGlobalAdmin()) {
       // Only select projects with VISIBLE judges' media.
-      dbAnd.push(...<ProjectWhereInput[]><unknown>[
+      dbAnd.push(...<Prisma.ProjectWhereInput[]><unknown>[
         {
           awards: { some: {} },
           media: { some: { topic: MediaTopic.JUDGES } },
@@ -118,9 +118,9 @@ export function projectsWhereToPrisma(where?: ProjectsWhere, auth?: AuthContext)
 }
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-export function photosWhereToPrisma(where?: PhotosWhere): PhotoWhereInput {
+export function photosWhereToPrisma(where?: PhotosWhere): Prisma.PhotoWhereInput {
   if (!where) return {};
-  const dbWhere: PhotoWhereInput = {};
+  const dbWhere: Prisma.PhotoWhereInput = {};
   if (where?.event) {
     dbWhere.eventId = where.event;
   }
@@ -139,7 +139,7 @@ export function photosWhereToPrisma(where?: PhotosWhere): PhotoWhereInput {
   return dbWhere;
 }
 
-export const projectsInclude: ProjectInclude = {
+export const projectsInclude: Prisma.ProjectInclude = {
   members: true,
   awards: true,
   reactionCounts: true,

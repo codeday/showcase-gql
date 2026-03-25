@@ -1,7 +1,7 @@
 import {
   Resolver, Query, Arg, registerEnumType, Ctx,
 } from 'type-graphql';
-import { PrismaClient, ProjectOrderByInput } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { Inject } from 'typedi';
 import { Project } from '../types/Project';
 import { ProjectsWhere } from '../inputs/ProjectsWhere';
@@ -17,15 +17,15 @@ registerEnumType(ProjectOrderByArg, { name: 'ProjectOrderByArg' });
 @Resolver(Project)
 export class ProjectQuery {
   @Inject(() => PrismaClient)
-  private readonly prisma : PrismaClient;
+  private readonly prisma: PrismaClient;
 
-  @Query(() => Project, {nullable: true})
+  @Query(() => Project, { nullable: true })
   async project(
     @Arg('id', { nullable: true }) id?: string,
     @Arg('slug', { nullable: true }) slug?: string,
   ): Promise<Project> {
     if ((id && slug) || (!id && !slug)) throw new Error('Set either id or slug.');
-    return <Promise<Project>><unknown> this.prisma.project.findFirst({
+    return <Promise<Project>><unknown>this.prisma.project.findFirst({
       where: { id, slug: slug ? slug.toLowerCase() : undefined },
       include: projectsInclude,
     });
@@ -40,12 +40,12 @@ export class ProjectQuery {
     @Arg('where', () => ProjectsWhere, { nullable: true }) where?: ProjectsWhere,
   ): Promise<Project[]> {
     // Set orderBy on query
-    let dbOrderBy: ProjectOrderByInput = { createdAt: 'desc' };
+    let dbOrderBy: Prisma.ProjectOrderByWithRelationInput = { createdAt: 'desc' };
     if (orderBy === ProjectOrderByArg.OLDEST) {
       dbOrderBy = { createdAt: 'asc' };
     }
 
-    return <Promise<Project[]>><unknown> this.prisma.project.findMany({
+    return <Promise<Project[]>><unknown>this.prisma.project.findMany({
       skip,
       take: take || 25,
       orderBy: dbOrderBy,
